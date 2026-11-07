@@ -1,0 +1,1341 @@
+/* TodoApp design tokens and components, modelled on Linear.
+ *
+ * Replaces Bootstrap outright. Bootstrap's defaults -- 16px type, 0.375rem
+ * radii, drop shadows, saturated blues -- are the opposite of what this
+ * interface wants at almost every turn, so overriding it would have cost more
+ * than starting from tokens.
+ *
+ * No build step and no CDN: the file is served straight from /static, same as
+ * the vendored assets it replaces.
+ *
+ * Sections
+ *   1. Tokens        2. Reset       3. Typography   4. App shell
+ *   5. Sidebar       6. Menus       7. Buttons      8. Forms
+ *   9. Avatars      10. Issues     11. Auth        12. Settings
+ *  13. Utilities   14. Summary
+ */
+
+/* 1. Tokens ---------------------------------------------------------------
+ *
+ * Dark is the default because it is Linear's own; a light-mode OS still gets
+ * light through the media query, and data-theme on <html> overrides either.
+ */
+
+:root {
+  --bg-app: #08090a;
+  --bg-panel: #0f1011;
+  --bg-elevated: #191a1c;
+  --bg-hover: #1c1d20;
+  --bg-active: #232427;
+  --bg-input: #131415;
+
+  --border: #23252a;
+  --border-strong: #2f3238;
+
+  --text-primary: #f7f8f8;
+  --text-secondary: #c2c6cd;
+  --text-tertiary: #8a8f98;
+  --text-disabled: #55585e;
+
+  --accent: #5e6ad2;
+  --accent-hover: #6c77d8;
+  --accent-text: #ffffff;
+  --accent-subtle: rgba(94, 106, 210, 0.16);
+
+  --danger: #eb5757;
+  --danger-subtle: rgba(235, 87, 87, 0.14);
+  --success: #4cb782;
+  --warning: #f2c94c;
+
+  /* Issue statuses, in the order they group in the list. */
+  --status-backlog: #8a8f98;
+  --status-todo: #8a8f98;
+  --status-in_progress: #f2c94c;
+  --status-done: #5e6ad2;
+  --status-canceled: #6b6f76;
+
+
+  /* Chart series. Two hues, validated as a categorical pair against this
+   * surface with the data-viz palette checker: lightness band, chroma floor,
+   * CVD separation (deutan ΔE 22.7, tritan 11.2), normal-vision ΔE 25.4 and
+   * 3:1 contrast all pass. Each mode is stepped for its own surface -- dark is
+   * not an automatic flip of light. */
+  --series-created: #5e6ad2;
+  --series-completed: #41a877;
+  --delta-good: #41a877;
+
+  /* The burn-up adds a third series. Validated as a set, in drawing order,
+   * against this surface: worst adjacent CVD deltaE 8.5, normal-vision 20.0,
+   * all three inside the lightness band and over 3:1. A grey Scope line was
+   * tried first and failed outright -- deltaE 5.1 against the green under
+   * deuteranopia, and 12.5 even with full colour vision. */
+  --series-scope: #5e6ad2;
+  --series-started: #cf7a33;
+
+  --sidebar-w: 220px;
+  --radius-sm: 4px;
+  --radius: 6px;
+  --radius-lg: 8px;
+
+  --fs-xs: 11px;
+  --fs-sm: 12px;
+  --fs: 13px;
+  --fs-md: 14px;
+  --fs-lg: 15px;
+  --fs-xl: 21px;
+
+  /* Inter is what Linear uses. It is not vendored here -- no CDN, and a woff2
+   * would be a binary in the repo -- so the stack falls through to the
+   * closest system face, Segoe UI Variable on Windows. */
+  --font: "Inter", "Inter Variable", -apple-system, BlinkMacSystemFont,
+          "Segoe UI Variable Text", "Segoe UI", Roboto, "Helvetica Neue",
+          Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", "Segoe UI Mono",
+               Menlo, Consolas, monospace;
+
+  --shadow-menu: 0 8px 24px rgba(0, 0, 0, 0.45),
+                 0 0 0 1px rgba(255, 255, 255, 0.04);
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg-app: #f7f8f8;
+    --bg-panel: #ffffff;
+    --bg-elevated: #ffffff;
+    --bg-hover: #f1f2f4;
+    --bg-active: #e8eaec;
+    --bg-input: #ffffff;
+
+    --border: #e4e5e8;
+    --border-strong: #d0d2d7;
+
+    --text-primary: #17181a;
+    --text-secondary: #43464d;
+    --text-tertiary: #6b6f76;
+    --text-disabled: #a1a5ad;
+
+    --accent-subtle: rgba(94, 106, 210, 0.1);
+    --danger-subtle: rgba(235, 87, 87, 0.09);
+    --series-created: #4d58c4;
+    --series-completed: #2f8f60;
+    --delta-good: #2f8f60;
+    --series-scope: #4d58c4;
+    --series-started: #b8651c;
+
+    --shadow-menu: 0 8px 24px rgba(16, 18, 26, 0.14),
+                   0 0 0 1px rgba(16, 18, 26, 0.06);
+    color-scheme: light;
+  }
+}
+
+/* The toggle wins over the OS in both directions, so it has to restate the
+ * light palette rather than rely on the media query above. */
+:root[data-theme="light"] {
+  --bg-app: #f7f8f8;
+  --bg-panel: #ffffff;
+  --bg-elevated: #ffffff;
+  --bg-hover: #f1f2f4;
+  --bg-active: #e8eaec;
+  --bg-input: #ffffff;
+  --border: #e4e5e8;
+  --border-strong: #d0d2d7;
+  --text-primary: #17181a;
+  --text-secondary: #43464d;
+  --text-tertiary: #6b6f76;
+  --text-disabled: #a1a5ad;
+  --accent-subtle: rgba(94, 106, 210, 0.1);
+  --danger-subtle: rgba(235, 87, 87, 0.09);
+  --series-created: #4d58c4;
+  --series-completed: #2f8f60;
+  --delta-good: #2f8f60;
+  --series-scope: #4d58c4;
+  --series-started: #b8651c;
+  --shadow-menu: 0 8px 24px rgba(16, 18, 26, 0.14),
+                 0 0 0 1px rgba(16, 18, 26, 0.06);
+  color-scheme: light;
+}
+
+/* 2. Reset ---------------------------------------------------------------- */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg-app);
+  color: var(--text-primary);
+  font-family: var(--font);
+  font-size: var(--fs);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5, h6, p, figure { margin: 0; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+
+a { color: inherit; text-decoration: none; }
+a:hover { color: var(--text-primary); }
+
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; background: none; border: none; padding: 0; }
+
+svg { display: block; flex: none; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-radius: var(--radius-sm);
+}
+
+/* 3. Typography ----------------------------------------------------------- */
+
+/* A row, because headings pair an icon with their text and the reset makes
+ * every svg display:block -- which otherwise pushes the words to their own
+ * line. The gap replaces the margins each heading used to set by hand. */
+.page-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: var(--fs-md);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.section-title { font-size: var(--fs-lg); font-weight: 510; letter-spacing: -0.012em; }
+.muted { color: var(--text-tertiary); }
+.hint { font-size: var(--fs-sm); color: var(--text-tertiary); }
+
+kbd {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-hover);
+  color: var(--text-tertiary);
+  font-family: var(--font);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  line-height: 1;
+  justify-content: center;
+}
+
+/* 4. App shell ------------------------------------------------------------
+ *
+ * Sidebar sits directly on the page background; the content is an inset panel
+ * with its own border and radius. That inset is the single most recognisable
+ * part of the current Linear layout.
+ */
+
+.app {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  margin: 8px 8px 8px 0;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border);
+  flex: none;
+}
+
+.app-header .spacer { flex: 1; }
+
+.app-body {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.app-body.padded { padding: 24px; }
+
+.content-narrow {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+
+/* 5. Sidebar -------------------------------------------------------------- */
+
+.sidebar {
+  width: var(--sidebar-w);
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  gap: 2px;
+  overflow-y: auto;
+}
+
+.sidebar-section {
+  margin-top: 16px;
+  padding: 4px 8px;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  padding: 0 8px;
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: var(--fs);
+  font-weight: 450;
+}
+
+.nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+.nav-item.active { background: var(--bg-active); color: var(--text-primary); }
+.nav-item .label { flex: 1; min-width: 0; overflow: hidden;
+                   text-overflow: ellipsis; white-space: nowrap; }
+.nav-item .count { font-size: var(--fs-sm); color: var(--text-tertiary); }
+
+/* Sidebar entries for features that are not built yet. Rendered so the
+ * navigation matches the reference, but inert -- a dead link that 404s is a
+ * worse lie than a visibly disabled one. */
+.nav-item.pending {
+  color: var(--text-disabled);
+  cursor: default;
+}
+.nav-item.pending:hover { background: none; color: var(--text-disabled); }
+.nav-item.pending .badge-soon {
+  font-size: var(--fs-xs);
+  color: var(--text-disabled);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0 4px;
+}
+
+/* The top row names the signed-in account, not the workspace: switching
+ * workspaces hangs off the "Workspace" section header below, where the thing
+ * being switched is the thing you are pointing at. */
+.sidebar-top { display: flex; align-items: center; gap: 2px; }
+
+.account-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 34px;
+  padding: 0 8px;
+  border-radius: var(--radius);
+  font-size: var(--fs);
+  font-weight: 500;
+  text-align: left;
+}
+
+.account-switch:hover { background: var(--bg-hover); }
+.account-switch .name {
+  flex: 1; min-width: 0; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap;
+}
+.account-switch .chevron { color: var(--text-tertiary); }
+
+.nav-group { display: flex; flex-direction: column; gap: 1px; margin-top: 8px; }
+
+/* A section header that is also the trigger for a menu. */
+.sidebar-section.as-button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+.sidebar-section.as-button:hover { color: var(--text-primary); }
+
+.team-group { display: flex; flex-direction: column; gap: 1px; }
+
+.nav-item.team-head {
+  margin-top: 2px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  cursor: default;
+}
+.nav-item.team-head:hover { background: none; color: var(--text-secondary); }
+
+/* Indentation carries the hierarchy: team > view > sub-view. */
+.nav-item.nested { padding-left: 28px; }
+.nav-item.nested.twice { padding-left: 48px; }
+
+/* 6. Menus ---------------------------------------------------------------- */
+
+.menu-anchor { position: relative; }
+
+/* Fixed, always.
+ *
+ * Menus open from inside the sidebar and from inside the issue list, and both
+ * scroll. A scroll container clips absolutely positioned children on both
+ * axes -- `overflow-y: auto` forces the other axis away from `visible` -- so
+ * an absolute menu loses whatever hangs past the container's edge. That is
+ * not obvious until a menu happens to be wider than what it opens from, which
+ * is why this is the default rather than something each menu opts into.
+ *
+ * app.js sets top/left against the trigger's viewport box on open. */
+.menu {
+  position: fixed;
+  z-index: 40;
+  top: 0;
+  left: 0;
+  min-width: 240px;
+  padding: 4px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-menu);
+}
+
+.menu[hidden] { display: none; }
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 30px;
+  padding: 0 8px;
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: var(--fs);
+  text-align: left;
+}
+
+.menu-item:hover, .menu-item:focus-visible {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  outline: none;
+}
+
+.menu-item .label { flex: 1; min-width: 0; }
+.menu-item.pending { color: var(--text-disabled); cursor: default; }
+.menu-item.pending:hover { background: none; color: var(--text-disabled); }
+.menu-item.danger:hover { background: var(--danger-subtle); color: var(--danger); }
+
+.menu-separator {
+  height: 1px;
+  margin: 4px -4px;
+  background: var(--border);
+}
+
+.menu-label {
+  padding: 6px 8px 4px;
+  font-size: var(--fs-sm);
+  color: var(--text-tertiary);
+}
+
+.menu form { display: contents; }
+
+/* 7. Buttons -------------------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  font-size: var(--fs);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.btn-primary { background: var(--accent); color: var(--accent-text); }
+.btn-primary:hover { background: var(--accent-hover); color: var(--accent-text); }
+
+.btn-secondary {
+  background: var(--bg-hover);
+  border-color: var(--border);
+  color: var(--text-primary);
+}
+.btn-secondary:hover { background: var(--bg-active); }
+
+.btn-ghost { color: var(--text-secondary); }
+.btn-ghost:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+.btn-danger { color: var(--danger); }
+.btn-danger:hover { background: var(--danger-subtle); }
+
+.btn-lg { height: 34px; padding: 0 14px; }
+.btn-block { width: 100%; }
+
+.btn-icon {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: var(--radius);
+  color: var(--text-tertiary);
+}
+.btn-icon:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+/* 8. Forms ---------------------------------------------------------------- */
+
+.field { margin-bottom: 16px; }
+
+.field label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: var(--fs);
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.input, .textarea, .select {
+  width: 100%;
+  padding: 7px 10px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  font-size: var(--fs);
+  color: var(--text-primary);
+}
+
+.input::placeholder, .textarea::placeholder { color: var(--text-disabled); }
+
+.input:focus, .textarea:focus, .select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-subtle);
+}
+
+.textarea { min-height: 96px; resize: vertical; line-height: 1.55; }
+
+.select {
+  appearance: none;
+  padding-right: 28px;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%238a8f98' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4.5 6 7.5 9 4.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 9px center;
+}
+
+.field-row { display: flex; align-items: baseline; gap: 6px; }
+.field-row .prefix { color: var(--text-tertiary); font-size: var(--fs); }
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+/* 9. Avatars -------------------------------------------------------------- */
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.avatar.unassigned {
+  background: transparent;
+  border: 1px dashed var(--border-strong);
+}
+
+.avatar.round { border-radius: 50%; }
+.avatar.lg { width: 28px; height: 28px; font-size: 12px; }
+.avatar.xl { width: 56px; height: 56px; font-size: 20px;
+             border-radius: var(--radius-lg); }
+
+/* 10. Issues -------------------------------------------------------------- */
+
+.issue-group { border-bottom: 1px solid var(--border); }
+
+.issue-group-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 12px 0 16px;
+  background: var(--bg-app);
+  font-size: var(--fs);
+  font-weight: 500;
+}
+
+.issue-group-header .count { color: var(--text-tertiary); font-weight: 450; }
+
+.group-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: inherit;
+  font: inherit;
+}
+
+.group-toggle .chev { display: flex; color: var(--text-tertiary);
+                      transition: transform 120ms ease; }
+.group-toggle.is-collapsed .chev { transform: rotate(-90deg); }
+
+.issue-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  padding: 0 12px 0 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.issue-row:last-child { border-bottom: none; }
+.issue-row:hover { background: var(--bg-hover); }
+
+.issue-row .identifier {
+  flex: none;
+  width: 64px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--text-tertiary);
+}
+
+.issue-row .title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
+}
+
+.issue-row.is-done .title,
+.issue-row.is-canceled .title {
+  color: var(--text-tertiary);
+  text-decoration: line-through;
+}
+
+.status-icon { width: 14px; height: 14px; flex: none; }
+.status-backlog { color: var(--status-backlog); }
+.status-todo { color: var(--status-todo); }
+.status-in_progress { color: var(--status-in_progress); }
+.status-done { color: var(--status-done); }
+.status-canceled { color: var(--status-canceled); }
+
+.priority-icon { color: var(--text-tertiary); flex: none; }
+
+/* Projects: one row per feature, with how far along it is. Same row rhythm as
+ * the issue list so the two read as the same kind of thing at two altitudes. */
+.project-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.project-row:last-child { border-bottom: none; }
+.project-row:hover { background: var(--bg-hover); }
+
+.project-row .title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--text-primary);
+}
+
+/* A track that is always drawn, so an empty project still shows where the bar
+ * would go rather than leaving a hole in the column. */
+.progress-mini {
+  flex: none;
+  width: 96px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--bg-active);
+  overflow: hidden;
+}
+
+.progress-mini > span {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--series-completed);
+}
+
+.progress-count {
+  flex: none;
+  width: 60px;
+  text-align: right;
+  font-size: var(--fs-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.target-date {
+  flex: none;
+  width: 56px;
+  text-align: right;
+  font-size: var(--fs-sm);
+}
+.target-date.overdue { color: var(--danger); }
+
+/* Cycles: one row per time box, with the running one opened out. */
+.cycle-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.cycle-row:hover { background: var(--bg-hover); }
+.cycle-row .title { flex: none; font-weight: 500; color: var(--text-primary); }
+.cycle-row .cycle-dates { flex: 1; min-width: 0; font-size: var(--fs-sm); }
+.cycle-row .icon { color: var(--text-tertiary); }
+
+/* A word, not only a colour: the state has to survive being read in
+ * greyscale, and there is no icon here to carry it. */
+.cycle-state {
+  flex: none;
+  padding: 1px 7px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  font-size: var(--fs-sm);
+  color: var(--text-tertiary);
+}
+.cycle-state.current {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.cycle-state.upcoming { color: var(--text-secondary); }
+.cycle-state.completed { border-style: dashed; }
+
+.cycle-open {
+  padding: 16px 16px 8px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-app);
+}
+
+.cycle-open figcaption { margin-bottom: 12px; }
+
+/* The part of a live cycle that has not happened yet. Shaded rather than
+ * drawn over, so the lines stop where the data does. */
+.trend .remaining { fill: var(--bg-hover); opacity: 0.55; }
+.trend .today-rule { stroke: var(--border-strong); stroke-width: 1; }
+
+.status-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-sm);
+}
+.status-trigger:hover { background: var(--bg-active); }
+
+.issue-row .menu-anchor { display: flex; flex: none; }
+
+/* Issue detail: body on the left, properties on the right, the way Linear
+ * splits it. Collapses to one column on narrow screens. */
+.issue-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 240px;
+  gap: 32px;
+  padding: 28px 24px 64px;
+  align-items: start;
+}
+
+.issue-detail h1 {
+  font-size: var(--fs-xl);
+  font-weight: 510;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+
+.issue-description {
+  white-space: pre-wrap;
+  color: var(--text-secondary);
+  line-height: 1.65;
+}
+
+.issue-props {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-left: 24px;
+  border-left: 1px solid var(--border);
+}
+
+.prop-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 28px;
+}
+
+.prop-row .prop-label {
+  width: 76px;
+  flex: none;
+  color: var(--text-tertiary);
+  font-size: var(--fs-sm);
+}
+
+.prop-value {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 6px;
+  border-radius: var(--radius);
+  color: var(--text-primary);
+}
+
+button.prop-value:hover { background: var(--bg-hover); }
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-tertiary);
+  font-size: var(--fs);
+}
+
+.breadcrumb .current {
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+}
+
+@media (max-width: 860px) {
+  .issue-detail { grid-template-columns: minmax(0, 1fr); }
+  .issue-props { padding-left: 0; border-left: none;
+                 border-top: 1px solid var(--border); padding-top: 16px; }
+}
+
+/* 11. Auth ---------------------------------------------------------------- */
+
+.auth-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.auth-card { width: 100%; max-width: 340px; }
+
+.auth-card .brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 28px;
+  font-size: var(--fs-lg);
+  font-weight: 500;
+}
+
+.auth-card h1 {
+  margin-bottom: 24px;
+  font-size: var(--fs-xl);
+  font-weight: 510;
+  letter-spacing: -0.02em;
+  text-align: center;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  color: var(--text-tertiary);
+  font-size: var(--fs-sm);
+}
+
+.auth-divider::before, .auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.auth-footer {
+  margin-top: 24px;
+  text-align: center;
+  font-size: var(--fs);
+  color: var(--text-tertiary);
+}
+
+.auth-footer a { color: var(--accent); }
+
+/* 12. Settings ------------------------------------------------------------ */
+
+.settings-sidebar { width: 240px; }
+
+.settings-back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  padding: 0 8px;
+  margin-bottom: 8px;
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+  font-size: var(--fs);
+  font-weight: 500;
+}
+.settings-back:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+.settings-page { max-width: 680px; padding: 32px 40px 64px; }
+
+.settings-page > header { margin-bottom: 28px; }
+.settings-page > header h1 {
+  font-size: var(--fs-xl);
+  font-weight: 510;
+  letter-spacing: -0.02em;
+}
+.settings-page > header p { margin-top: 6px; color: var(--text-tertiary); }
+
+.settings-block {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin-bottom: 16px;
+}
+
+.settings-block h2 {
+  font-size: var(--fs-md);
+  font-weight: 510;
+  margin-bottom: 4px;
+}
+
+.settings-block.danger-zone { border-color: var(--danger); }
+.settings-block.danger-zone h2 { color: var(--danger); }
+
+.settings-block.key-reveal { border-color: var(--accent); }
+
+/* Tables. Scroll inside their own box rather than pushing the page sideways;
+ * the invite-link column is wide by nature. */
+.settings-block > .settings-table,
+.settings-block > * > .settings-table { margin: 0; }
+
+.settings-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs);
+}
+
+.settings-table th {
+  padding: 10px 16px;
+  text-align: left;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  border-bottom: 1px solid var(--border);
+}
+
+.settings-table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.settings-table tr:last-child td { border-bottom: none; }
+.settings-table form { display: inline-flex; align-items: center; gap: 6px; }
+
+.settings-table .copyable {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  padding: 4px 8px;
+  min-width: 220px;
+}
+
+.copyable { font-family: var(--font-mono); }
+
+.code-block {
+  margin: 0;
+  padding: 10px 12px;
+  overflow-x: auto;
+  background: var(--bg-app);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  white-space: pre;
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  color: var(--text-secondary);
+}
+
+/* Colour picker: the radio itself is hidden, the swatch is the control. */
+.swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.swatch {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  box-shadow: 0 0 0 0 var(--accent);
+  transition: box-shadow 100ms ease;
+}
+
+.swatch input { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+.swatch:has(input:checked) {
+  box-shadow: 0 0 0 2px var(--bg-panel), 0 0 0 4px var(--text-primary);
+}
+.swatch:has(input:focus-visible) {
+  box-shadow: 0 0 0 2px var(--bg-panel), 0 0 0 4px var(--accent);
+}
+
+.toggle-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.toggle-row input { margin-top: 3px; accent-color: var(--accent); }
+
+button:disabled, .btn:disabled, input:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+button:disabled:hover, .btn:disabled:hover { background: inherit; }
+
+/* 13. Utilities ----------------------------------------------------------- */
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: var(--fs);
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
+.banner.error { border-color: var(--danger); color: var(--danger);
+                background: var(--danger-subtle); }
+.banner.success { border-color: var(--success); color: var(--success);
+                  background: rgba(76, 183, 130, 0.12); }
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 72px 24px;
+  text-align: center;
+  color: var(--text-tertiary);
+}
+
+.empty-state .title { color: var(--text-primary); font-weight: 500; }
+
+.row { display: flex; align-items: center; gap: 8px; }
+.row.between { justify-content: space-between; }
+.stack { display: flex; flex-direction: column; gap: 4px; }
+
+/* 14. Summary -------------------------------------------------------------
+ *
+ * Mark specs follow the data-viz method: bars ≤24px thick with a 4px rounded
+ * data-end and a square baseline, 2px lines with round joins, ≥8px end markers
+ * carrying a 2px surface ring, and solid hairline gridlines one step off the
+ * surface. One hue per single-series chart -- the row's own icon and label
+ * carry identity, so colouring each bar separately would spend the only free
+ * channel restating the bar length.
+ */
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 24px 48px;
+  max-width: 1060px;
+}
+
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.stat-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.stat-label { font-size: var(--fs-sm); color: var(--text-tertiary); }
+
+/* Proportional figures, not tabular: at this size equal-width digits make a
+ * number like 121 look loose. tabular-nums belongs in the table below. */
+.stat-value {
+  font-size: 28px;
+  font-weight: 560;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.stat-delta { font-size: var(--fs-sm); color: var(--text-tertiary); }
+.stat-delta.up { color: var(--delta-good); }
+.stat-delta.down { color: var(--danger); }
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.chart-card {
+  margin: 0;
+  padding: 16px;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.chart-card figcaption { margin-bottom: 14px; }
+.chart-card h2 { font-size: var(--fs-md); font-weight: 510; }
+.chart-card figcaption p { margin-top: 3px; }
+
+.bars { display: flex; flex-direction: column; gap: 10px; }
+
+.bar-row {
+  display: grid;
+  grid-template-columns: 128px minmax(0, 1fr) 30px;
+  align-items: center;
+  gap: 10px;
+}
+
+.bar-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--text-secondary);
+}
+
+.bar-track { display: block; width: 100%; height: 8px; }
+
+.bar {
+  display: block;
+  height: 8px;
+  min-width: 3px;
+  background: var(--series-created);
+  /* Square where it leaves the baseline, rounded at the data end. */
+  border-radius: 0 4px 4px 0;
+}
+
+.bar-value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+.trend { width: 100%; height: auto; }
+.trend .grid { stroke: var(--border); stroke-width: 1; }
+.trend .tick {
+  fill: var(--text-tertiary);
+  font: 500 11px var(--font);
+  font-variant-numeric: tabular-nums;
+}
+.trend .trend-line {
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.trend .line-created { stroke: var(--series-created); }
+.trend .line-scope { stroke: var(--series-scope); }
+.trend .line-started { stroke: var(--series-started); }
+.trend .line-completed { stroke: var(--series-completed); }
+.trend .trend-dot { stroke: var(--bg-panel); stroke-width: 2; }
+.trend .dot-created { fill: var(--series-created); }
+.trend .dot-scope { fill: var(--series-scope); }
+.trend .dot-started { fill: var(--series-started); }
+.trend .dot-completed { fill: var(--series-completed); }
+.trend .end-label { fill: var(--text-primary); font: 500 11px var(--font); }
+
+.legend {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: var(--fs-sm);
+  color: var(--text-tertiary);
+}
+
+.legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.legend-item b { color: var(--text-primary); font-weight: 510; }
+
+.key { display: inline-block; width: 12px; height: 3px; border-radius: 2px; }
+.key-created { background: var(--series-created); }
+.key-scope { background: var(--series-scope); }
+.key-started { background: var(--series-started); }
+.key-completed { background: var(--series-completed); }
+
+/* Every chart has a table twin. A tooltip may enhance a chart; it may not be
+ * the only way to read a value. */
+.table-view {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.table-view summary {
+  font-size: var(--fs-sm);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  list-style: none;
+}
+.table-view summary::-webkit-details-marker { display: none; }
+.table-view summary::before { content: "\25B8  "; }
+.table-view[open] summary::before { content: "\25BE  "; }
+.table-view summary:hover { color: var(--text-primary); }
+
+.data-table {
+  width: 100%;
+  margin-top: 8px;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+.data-table th {
+  padding: 5px 8px 5px 0;
+  text-align: left;
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+.data-table td {
+  padding: 5px 8px 5px 0;
+  border-top: 1px solid var(--border);
+  font-variant-numeric: tabular-nums;
+}
+
+.activity { display: flex; flex-direction: column; }
+
+.activity li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+}
+.activity li:last-child { border-bottom: none; }
+
+.activity .identifier {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  color: var(--text-tertiary);
+}
+
+.activity-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--text-secondary);
+}
+.activity-title:hover { color: var(--text-primary); }
+
+/* Team home: the overview header the reference puts above everything else. */
+.team-overview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px;
+  gap: 32px;
+  align-items: start;
+  padding-bottom: 4px;
+}
+
+.overview-main h1 {
+  font-size: var(--fs-xl);
+  font-weight: 510;
+  letter-spacing: -0.02em;
+}
+
+.overview-description {
+  margin-top: 6px;
+  max-width: 56ch;
+  color: var(--text-secondary);
+}
+
+.overview-rail { display: flex; flex-direction: column; gap: 4px; }
+
+.overview-rail h2 {
+  margin-top: 10px;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-tertiary);
+}
+.overview-rail h2:first-child { margin-top: 0; }
+
+.rail-avatars { display: flex; flex-wrap: wrap; gap: 4px; }
+
+.rail-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 26px;
+  padding: 0 8px;
+  margin-left: -8px;
+  border-radius: var(--radius);
+  color: var(--text-secondary);
+}
+.rail-link:hover { background: var(--bg-hover); color: var(--text-primary); }
+.rail-link.pending { color: var(--text-disabled); cursor: default; }
+.rail-link.pending:hover { background: none; color: var(--text-disabled); }
+
+@media (max-width: 920px) {
+  .team-overview { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .kpi-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .chart-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 720px) {
+  .app { flex-direction: column; height: auto; min-height: 100vh; }
+  .sidebar { width: 100%; flex-direction: row; flex-wrap: wrap;
+             align-items: center; overflow: visible; }
+  .sidebar-section { display: none; }
+  .app-main { margin: 0 8px 8px; }
+  .settings-page { padding: 24px 16px 48px; }
+}

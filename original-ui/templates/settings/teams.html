@@ -1,0 +1,70 @@
+{% extends "settings.html" %}
+{% import "partials/icons.html" as icons %}
+
+{% block page_subtitle %}Teams own issues, and their key is what makes an
+identifier: a team keyed TODO numbers its issues TODO-1, TODO-2.{% endblock %}
+
+{% block content %}
+<div class="settings-block" style="padding:0">
+  <table class="settings-table">
+    <thead>
+      <tr><th>Team</th><th>Key</th><th>Members</th><th>Issues</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for team in team_rows %}
+      <tr>
+        <td>
+          <span class="row" style="gap:8px">
+            {{ icons.team_badge(team) }}{{ team.name }}
+          </span>
+        </td>
+        <td><code>{{ team.key }}</code></td>
+        <td class="muted">{{ member_counts[team.id] }}</td>
+        <td class="muted">{{ issue_counts[team.id] }}</td>
+        <td style="text-align:right">
+          <a class="btn btn-ghost" href="/settings/teams/{{ team.key }}">Manage</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="settings-block">
+  <h2>Create a team</h2>
+  <form method="post" action="/settings/teams" style="margin-top:12px">
+    <div class="row" style="gap:12px; align-items:flex-end">
+      <div class="field" style="flex:2; margin-bottom:0">
+        <label for="name">Name</label>
+        <input class="input" id="name" name="name" placeholder="Engineering"
+               required>
+      </div>
+      <div class="field" style="flex:1; margin-bottom:0">
+        <label for="key">Key</label>
+        <input class="input" id="key" name="key" placeholder="ENG" maxlength="6">
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:16px">
+      <label>Colour</label>
+      <div class="swatches">
+        {% for colour in palette %}
+        <label class="swatch" style="background:{{ colour }}" title="{{ colour }}">
+          <input type="radio" name="color" value="{{ colour }}"
+                 {{ 'checked' if loop.first }}>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    <p class="hint">
+      Leave the key empty and it is taken from the name. It is upper-cased, cut
+      to six characters, and made unique within this workspace.
+    </p>
+
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">Create team</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

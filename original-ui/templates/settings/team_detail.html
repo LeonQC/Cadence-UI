@@ -1,0 +1,114 @@
+{% extends "settings.html" %}
+{% import "partials/icons.html" as icons %}
+
+{% block page_title %}{{ team.name }}{% endblock %}
+{% block page_subtitle %}
+Issues in this team are identified <code>{{ team.key }}-1</code>,
+<code>{{ team.key }}-2</code>, and so on.
+{% endblock %}
+
+{% block content %}
+<form method="post" action="/settings/teams/{{ team.key }}">
+  <div class="settings-block">
+    <div class="row" style="gap:12px; align-items:flex-end">
+      <div class="field" style="flex:2; margin-bottom:0">
+        <label for="name">Name</label>
+        <input class="input" id="name" name="name" value="{{ team.name }}" required>
+      </div>
+      <div class="field" style="flex:1; margin-bottom:0">
+        <label for="key">Key</label>
+        <input class="input" id="key" name="key" value="{{ team.key }}"
+               maxlength="6" required>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:16px">
+      <label for="description">Description</label>
+      <textarea class="textarea" id="description" name="description"
+                style="min-height:64px"
+                placeholder="What this team is responsible for"
+        >{{ team.description or '' }}</textarea>
+      <p class="hint" style="margin-top:6px">Shown at the top of the team's Home.</p>
+    </div>
+
+    <div class="field" style="margin-top:16px; margin-bottom:0">
+      <label>Colour</label>
+      <div class="swatches">
+        {% for colour in palette %}
+        <label class="swatch" style="background:{{ colour }}" title="{{ colour }}">
+          <input type="radio" name="color" value="{{ colour }}"
+                 {{ 'checked' if team.color == colour }}>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% if issue_count %}
+    <p class="hint" style="margin-top:12px">
+      Changing the key renames every identifier in this team — its
+      {{ issue_count }} issue{{ 's' if issue_count != 1 }} would move from
+      <code>{{ team.key }}-n</code> to the new prefix, and links already
+      written down would stop resolving.
+    </p>
+    {% endif %}
+  </div>
+
+  <div class="form-actions">
+    <button class="btn btn-primary" type="submit">Save changes</button>
+    <a class="btn btn-ghost" href="/settings/teams">Back to teams</a>
+  </div>
+</form>
+
+<div class="settings-block" style="padding:0">
+  <table class="settings-table">
+    <thead><tr><th>Workspace member</th><th></th></tr></thead>
+    <tbody>
+      {% for person in people %}
+      <tr>
+        <td>
+          <span class="row" style="gap:8px">
+            {{ icons.avatar(person) }}
+            <span class="stack">
+              <span>{{ person.display_name }}</span>
+              <span class="hint">{{ person.email or person.username }}</span>
+            </span>
+          </span>
+        </td>
+        <td style="text-align:right">
+          <form method="post" action="/settings/teams/{{ team.key }}/members">
+            <input type="hidden" name="user_id" value="{{ person.id }}">
+            {% if person.id in member_ids %}
+            <input type="hidden" name="action" value="remove">
+            <button class="btn btn-ghost" type="submit">On the team — remove</button>
+            {% else %}
+            <input type="hidden" name="action" value="add">
+            <button class="btn btn-secondary" type="submit">Add</button>
+            {% endif %}
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="settings-block danger-zone">
+  <h2>Delete this team</h2>
+  <p class="hint" style="margin-top:4px">
+    {% if team_total < 2 %}
+      This is the only team in {{ workspace.name }}, so it cannot be deleted.
+    {% elif issue_count %}
+      It still has {{ issue_count }} issue{{ 's' if issue_count != 1 }}.
+      Delete or move them first — taking them down silently with the team is
+      not something this offers.
+    {% else %}
+      The team has no issues, so nothing else goes with it.
+    {% endif %}
+  </p>
+  <form method="post" action="/settings/teams/{{ team.key }}/delete"
+        style="margin-top:16px" data-confirm="Delete the {{ team.name }} team?">
+    <button class="btn btn-danger" type="submit"
+            {{ 'disabled' if team_total < 2 or issue_count }}>Delete team</button>
+  </form>
+</div>
+{% endblock %}

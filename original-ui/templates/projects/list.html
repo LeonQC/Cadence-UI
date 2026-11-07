@@ -1,0 +1,54 @@
+{% extends "app.html" %}
+{% import "partials/icons.html" as icons %}
+
+{% block title %}Projects · {{ active_team.name }} · TodoApp{% endblock %}
+
+{% block heading %}
+{{ icons.projects(15) }}
+<span>Projects</span>
+<span class="muted">{{ rows|length }}</span>
+{% endblock %}
+
+{% block header_actions %}
+<a class="btn btn-secondary" href="/team/{{ active_team.key }}/projects/new">
+  {{ icons.plus(13) }} New project
+</a>
+{% endblock %}
+
+{% block content %}
+{% if rows %}
+<ul>
+  {% for row in rows %}
+  {% set project = row.project %}
+  <li class="project-row">
+    {{ icons.project_status(project.status) }}
+    <a class="title" href="/project/{{ project.id }}">{{ project.name }}</a>
+
+    <span class="progress-mini" role="img"
+          aria-label="{{ row.done }} of {{ row.total }} issues done">
+      <span style="width:{{ row.percent }}%"></span>
+    </span>
+    <span class="muted progress-count">
+      {%- if row.total -%}{{ row.done }}/{{ row.total }}
+      {%- else -%}no issues{%- endif -%}
+    </span>
+
+    {{ icons.avatar(leads.get(project.lead_id)) }}
+
+    <span class="muted target-date
+                 {{ 'overdue' if project.target_date and project.target_date < today
+                    and project.status not in ('completed', 'canceled') }}">
+      {{ project.target_date.strftime('%b %d') if project.target_date else '—' }}
+    </span>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<div class="empty-state">
+  <span class="title">No projects in {{ active_team.name }}</span>
+  <span>A project is a feature: one deliverable, made of several issues.</span>
+  <a class="btn btn-primary" href="/team/{{ active_team.key }}/projects/new"
+     style="margin-top:8px">{{ icons.plus(13) }} New project</a>
+</div>
+{% endif %}
+{% endblock %}

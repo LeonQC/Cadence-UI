@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}TodoApp{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='/todo/css/linear.css') }}">
+</head>
+{# Routes live in the templates, not in app.js, so the shortcuts read them
+   from here rather than hard-coding a path in JavaScript. #}
+<body data-settings-url="/settings/" data-logout-url="/auth/logout">
+{% block body %}{% endblock %}
+<script src="{{ url_for('static', path='/todo/js/app.js') }}"></script>
+</body>
+</html>

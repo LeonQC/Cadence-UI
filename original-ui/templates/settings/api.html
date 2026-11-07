@@ -1,0 +1,79 @@
+{% extends "settings.html" %}
+
+{% block page_subtitle %}Personal keys for reaching this app over HTTP.{% endblock %}
+
+{% block content %}
+{% if fresh_key %}
+<div class="settings-block key-reveal">
+  <h2>Copy this key now</h2>
+  <p class="hint" style="margin-top:4px">
+    It is not stored — the database holds only its SHA-256, so this is the one
+    and only time it can be shown. If you lose it, revoke the key and make
+    another.
+  </p>
+  <input class="input copyable" readonly onfocus="this.select()"
+         value="{{ fresh_key }}" style="margin-top:12px">
+  <p class="hint" style="margin-top:12px">Use it as a bearer token:</p>
+  <pre class="code-block">curl -H "Authorization: Bearer {{ fresh_key }}" \
+     {{ base_url }}/</pre>
+</div>
+{% endif %}
+
+<div class="settings-block">
+  <h2>Create a key</h2>
+  <form method="post" action="/settings/api/keys" style="margin-top:12px">
+    <div class="row" style="gap:12px; align-items:flex-end">
+      <div class="field" style="flex:1; margin-bottom:0">
+        <label for="label">What is it for?</label>
+        <input class="input" id="label" name="label" placeholder="CI bot"
+               required>
+      </div>
+      <button class="btn btn-primary" type="submit">Create key</button>
+    </div>
+  </form>
+</div>
+
+{% if keys %}
+<div class="settings-block" style="padding:0">
+  <table class="settings-table">
+    <thead><tr><th>Key</th><th>Created</th><th>Last used</th><th></th></tr></thead>
+    <tbody>
+      {% for key in keys %}
+      <tr>
+        <td>
+          <span class="stack">
+            <span>{{ key.label }}</span>
+            <span class="hint"><code>{{ key.prefix }}…</code></span>
+          </span>
+        </td>
+        <td class="muted">
+          {{ key.created_at.strftime('%b %d, %Y') if key.created_at else '—' }}
+        </td>
+        <td class="muted">
+          {{ key.last_used_at.strftime('%b %d, %Y') if key.last_used_at else 'Never' }}
+        </td>
+        <td style="text-align:right">
+          <form method="post" action="/settings/api/keys/{{ key.id }}/revoke"
+                data-confirm="Revoke {{ key.label }}? Anything using it stops working.">
+            <button class="btn btn-danger" type="submit">Revoke</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="hint">No keys yet.</p>
+{% endif %}
+
+<div class="settings-block">
+  <h2>What a key can do</h2>
+  <p class="hint" style="margin-top:4px">
+    A key authenticates as you, on every page this app serves. It is not
+    affected by "log out of all other sessions", and a workspace that has
+    turned off your sign-in method still accepts it — revoking the key is the
+    way to stop it.
+  </p>
+</div>
+{% endblock %}

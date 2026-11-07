@@ -1,0 +1,238 @@
+{# Inline SVG icons, drawn on a 16x16 grid at 1.5px stroke to match Linear's
+   weight. Inline rather than an icon font or sprite sheet so they inherit
+   currentColor and need no extra request. #}
+
+{% macro chevron_down(size=12) %}
+<svg width="{{ size }}" height="{{ size }}" viewBox="0 0 16 16" fill="none"
+     stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+     stroke-linejoin="round" aria-hidden="true"><path d="M4 6.5 8 10.5 12 6.5"/></svg>
+{% endmacro %}
+
+{% macro chevron_right(size=12) %}
+<svg width="{{ size }}" height="{{ size }}" viewBox="0 0 16 16" fill="none"
+     stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+     stroke-linejoin="round" aria-hidden="true"><path d="M6.5 4 10.5 8 6.5 12"/></svg>
+{% endmacro %}
+
+{% macro chevron_left(size=14) %}
+<svg width="{{ size }}" height="{{ size }}" viewBox="0 0 16 16" fill="none"
+     stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+     stroke-linejoin="round" aria-hidden="true"><path d="M9.5 4 5.5 8 9.5 12"/></svg>
+{% endmacro %}
+
+{% macro settings(size=14) %}
+<svg width="{{ size }}" height="{{ size }}" viewBox="0 0 16 16" fill="none"
+     stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+  <circle cx="8" cy="8" r="2.1"/>
+  <path d="M8 1.6v1.6M8 12.8v1.6M14.4 8h-1.6M3.2 8H1.6M12.5 3.5l-1.1 1.1M4.6 11.4l-1.1 1.1M12.5 12.5l-1.1-1.1M4.6 4.6 3.5 3.5"
+        stroke-linecap="round"/>
+</svg>
+{% endmacro %}
+
+{% macro members(size=14) %}
+<svg width="{{ size }}" height="{{ size }}" viewBox="0 0 16 16" fill="none"
+     stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
+     stroke-linejoin="round" aria-hidden="true">
+  <circle cx="6" cy="5.5" r="2.2"/>
+  <path d="M1.9 13c0-2.3 1.8-3.7 4.1-3.7s4.1 1.4 4.1 3.7"/>
+  <path d="M11 3.7a2.2 2.2 0 0 1 0 4.2M12.2 9.6c1.3.4 2.2 1.5 2.2 3.1"/>
+</svg>
+{% endmacro %}
+
+{% macro download(size=14) %}
+<svg width="{{ size }}" height="{{ size }}" viewBox="0 0 16 16" fill="none"
+     stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
+     stroke-linejoin="round" aria-hidden="true">
+  <path d="M8 2.5v7M5 7l3 3 3-3M2.8 12.5h10.4"/>
+</svg>
+{% endmacro %}
+
+{% macro switch(size=14) %}
+<svg width="{{ size }}" height="{{ size }}" viewBox="0 0 16 16" fill="none"
+     stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
+     stroke-linejoin="round" aria-hidden="true">
+  <path d="M2.5 5.5h9L9 3M13.5 10.5h-9L7 13"/>
+</svg>
+{% endmacro %}
+
+{% macro logout(size=14) %}
+<svg width="{{ size }}" height="{{ size }}" viewBox="0 0 16 16" fill="none"
+     stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
+     stroke-linejoin="round" aria-hidden="true">
+  <path d="M6.2 13.5H3.6a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1h2.6M10.2 11 13.5 8l-3.3-3M13.5 8H6.4"/>
+</svg>
+{% endmacro %}
+
+{% macro search(size=14) %}
+<svg width="{{ size }}" height="{{ size }}" viewBox="0 0 16 16" fill="none"
+     stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
+     aria-hidden="true"><circle cx="7.2" cy="7.2" r="4.2"/><path d="M10.4 10.4 13.5 13.5"/></svg>
+{% endmacro %}
+
+{% macro compose(size=14) %}
+<svg width="{{ size }}" height="{{ size }}" viewBox="0 0 16 16" fill="none"
+     stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
+     stroke-linejoin="round" aria-hidden="true">
+  <path d="M12.8 2.6a1.4 1.4 0 0 1 2 2L7 12.4l-2.7.7.7-2.7z"/>
+  <path d="M2.5 13.6h4"/>
+</svg>
+{% endmacro %}
+
+{% macro plus(size=14) %}
+<svg width="{{ size }}" height="{{ size }}" viewBox="0 0 16 16" fill="none"
+     stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+     aria-hidden="true"><path d="M8 3.5v9M3.5 8h9"/></svg>
+{% endmacro %}
+
+{% macro inbox(size=14) %}
+<svg width="{{ size }}" height="{{ size }}" viewBox="0 0 16 16" fill="none"
+     stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
+     stroke-linejoin="round" aria-hidden="true">
+  <path d="M2 9.5 3.6 3.3a1 1 0 0 1 1-.8h6.8a1 1 0 0 1 1 .8L14 9.5v3a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"/>
+  <path d="M2 9.5h3l.8 1.4h4.4L11 9.5h3"/>
+</svg>
+{% endmacro %}
+
+{% macro my_issues(size=14) %}
+<svg width="{{ size }}" height="{{ size }}" viewBox="0 0 16 16" fill="none"
+     stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+  <circle cx="8" cy="8" r="5.6" stroke-dasharray="2.6 2.2"/>
+  <circle cx="8" cy="8" r="1.9" fill="currentColor" stroke="none"/>
+</svg>
+{% endmacro %}
+
+{% macro reviews(size=14) %}
+<svg width="{{ size }}" height="{{ size }}" viewBox="0 0 16 16" fill="none"
+     stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
+     stroke-linejoin="round" aria-hidden="true">
+  <circle cx="4.4" cy="4" r="1.6"/><circle cx="4.4" cy="12.2" r="1.6"/>
+  <path d="M4.4 5.6v5"/>
+  <circle cx="11.6" cy="12.2" r="1.6"/>
+  <path d="M11.6 10.6V6.4a2 2 0 0 0-2-2H7.2M8.6 3.1 7.1 4.4l1.5 1.3"/>
+</svg>
+{% endmacro %}
+
+{% macro agent(size=14) %}
+<svg width="{{ size }}" height="{{ size }}" viewBox="0 0 16 16" fill="none"
+     stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"
+     aria-hidden="true"><path d="M3.4 2.8 13 8l-9.6 5.2z"/></svg>
+{% endmacro %}
+
+{% macro teams(size=14) %}
+<svg width="{{ size }}" height="{{ size }}" viewBox="0 0 16 16" fill="none"
+     stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"
+     aria-hidden="true">
+  <rect x="2.4" y="2.4" width="11.2" height="11.2" rx="2.4"/>
+  <circle cx="8" cy="6.4" r="1.7"/>
+  <path d="M5 11.6c0-1.6 1.3-2.5 3-2.5s3 .9 3 2.5"/>
+</svg>
+{% endmacro %}
+
+{% macro home(size=14) %}
+<svg width="{{ size }}" height="{{ size }}" viewBox="0 0 16 16" fill="none"
+     stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"
+     aria-hidden="true">
+  <path d="M2.6 6.8 8 2.6l5.4 4.2v6a.9.9 0 0 1-.9.9h-9a.9.9 0 0 1-.9-.9z"/>
+  <path d="M6.4 13.7V9.4h3.2v4.3"/>
+</svg>
+{% endmacro %}
+
+{% macro issues_icon(size=14) %}
+<svg width="{{ size }}" height="{{ size }}" viewBox="0 0 16 16" fill="none"
+     stroke="currentColor" stroke-width="1.4" stroke-linecap="round"
+     stroke-linejoin="round" aria-hidden="true">
+  <rect x="2.6" y="2.6" width="10.8" height="10.8" rx="2.4"/>
+  <path d="M5.4 8h5.2M5.4 5.4h5.2M5.4 10.6h3"/>
+</svg>
+{% endmacro %}
+
+{% macro cycles(size=14) %}
+<svg width="{{ size }}" height="{{ size }}" viewBox="0 0 16 16" fill="none"
+     stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"
+     aria-hidden="true">
+  <circle cx="8" cy="8" r="5.6"/>
+  <path d="M6.7 5.6 10.4 8l-3.7 2.4z"/>
+</svg>
+{% endmacro %}
+
+{% macro projects(size=14) %}
+<svg width="{{ size }}" height="{{ size }}" viewBox="0 0 16 16" fill="none"
+     stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"
+     aria-hidden="true">
+  <path d="M8 2.2 13.6 5.3v5.4L8 13.8 2.4 10.7V5.3z"/>
+  <path d="M2.4 5.3 8 8.4l5.6-3.1M8 8.4v5.4"/>
+</svg>
+{% endmacro %}
+
+{% macro avatar(person, cls='') %}
+{%- if person -%}
+<span class="avatar {{ cls }}" style="background:{{ avatar_color(person) }}"
+      title="{{ person.display_name }}">{{ initials(person) }}</span>
+{%- else -%}
+<span class="avatar {{ cls }} unassigned" title="Unassigned"></span>
+{%- endif -%}
+{% endmacro %}
+
+{% macro priority(level, size=14) %}
+{# Four bars of increasing height, the way Linear reads priority at a glance.
+   P1 is the most urgent, so it fills the most bars. #}
+{%- set filled = 5 - (level or 3) -%}
+<svg class="priority-icon" width="{{ size }}" height="{{ size }}"
+     viewBox="0 0 14 14" aria-hidden="true"
+     title="Priority {{ level }}">
+  {% for bar in range(4) %}
+  <rect x="{{ 1 + bar * 3.2 }}" y="{{ 10 - bar * 2.2 }}" width="2.2"
+        height="{{ 2.5 + bar * 2.2 }}" rx="0.6"
+        fill="currentColor"
+        opacity="{{ '1' if bar < filled else '0.22' }}"/>
+  {% endfor %}
+</svg>
+{% endmacro %}
+
+{% macro team_badge(team, size=16) %}
+<span class="avatar" style="width:{{ size }}px;height:{{ size }}px;font-size:9px;
+      background:{{ team.color or '#5e6ad2' }}">{{ team.key[:2] }}</span>
+{% endmacro %}
+
+{# Status markers. Linear draws each one differently rather than only
+   recolouring a circle, so the state survives being read in greyscale. #}
+{# A project's state, drawn with the issue status shapes so the app has one
+   visual language for "how far along is this" rather than two. #}
+{% macro project_status(value, size=14) %}
+{{ status({"planned": "backlog", "in_progress": "in_progress",
+           "completed": "done", "canceled": "canceled"}.get(value, "todo"),
+          size) }}
+{% endmacro %}
+
+{% macro status(value, size=14) %}
+{% if value == 'backlog' %}
+<svg class="status-icon status-backlog" width="{{ size }}" height="{{ size }}"
+     viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"
+     aria-hidden="true"><circle cx="7" cy="7" r="5.5" stroke-dasharray="2.2 2"/></svg>
+{% elif value == 'in_progress' %}
+<svg class="status-icon status-in_progress" width="{{ size }}" height="{{ size }}"
+     viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"
+     aria-hidden="true">
+  <circle cx="7" cy="7" r="5.5"/>
+  <path d="M7 3.1a3.9 3.9 0 0 1 0 7.8z" fill="currentColor" stroke="none"/>
+</svg>
+{% elif value == 'done' %}
+<svg class="status-icon status-done" width="{{ size }}" height="{{ size }}"
+     viewBox="0 0 14 14" aria-hidden="true">
+  <circle cx="7" cy="7" r="6.2" fill="currentColor"/>
+  <path d="M4.4 7.1 6.2 8.9 9.7 5.4" fill="none" stroke="var(--bg-panel)"
+        stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+{% elif value == 'canceled' %}
+<svg class="status-icon status-canceled" width="{{ size }}" height="{{ size }}"
+     viewBox="0 0 14 14" aria-hidden="true">
+  <circle cx="7" cy="7" r="6.2" fill="currentColor"/>
+  <path d="M5 5l4 4M9 5l-4 4" fill="none" stroke="var(--bg-panel)"
+        stroke-width="1.6" stroke-linecap="round"/>
+</svg>
+{% else %}
+<svg class="status-icon status-todo" width="{{ size }}" height="{{ size }}"
+     viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"
+     aria-hidden="true"><circle cx="7" cy="7" r="5.5"/></svg>
+{% endif %}
+{% endmacro %}

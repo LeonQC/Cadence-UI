@@ -1,0 +1,114 @@
+{% extends "app.html" %}
+{% import "partials/icons.html" as icons %}
+{% import "partials/issue_row.html" as rows %}
+{% import "partials/project_menu.html" as menus %}
+
+{% block title %}{{ project.name }} · TodoApp{% endblock %}
+
+{% block header %}
+<nav class="breadcrumb">
+  <a href="/team/{{ active_team.key }}/projects">Projects</a>
+  {{ icons.chevron_right(11) }}
+  <span class="current" style="font-family:var(--font)">{{ project.name }}</span>
+</nav>
+<span class="spacer"></span>
+<a class="btn btn-secondary" href="/project/{{ project.id }}/edit">Edit</a>
+{% endblock %}
+
+{% block content %}
+<div class="issue-detail">
+  <div>
+    <h1>{{ project.name }}</h1>
+    <div class="issue-description">
+      {%- if project.description -%}{{ project.description }}
+      {%- else -%}<span class="muted">No description</span>{%- endif -%}
+    </div>
+
+    <h2 class="section-title" style="margin:28px 0 4px">
+      Issues <span class="muted">{{ total }}</span>
+    </h2>
+    {% if total %}
+    <p class="hint" style="margin-bottom:12px">
+      The tasks this feature is made of.
+    </p>
+    {% for value, items in groups %}
+    <section class="issue-group">
+      <div class="issue-group-header">
+        <button class="group-toggle" type="button"
+                data-collapse="group-{{ value }}" aria-expanded="true">
+          <span class="chev">{{ icons.chevron_down(11) }}</span>
+          {{ icons.status(value) }}
+          <span>{{ STATUS_LABELS[value] }}</span>
+          <span class="count">{{ items|length }}</span>
+        </button>
+      </div>
+      <ul id="group-{{ value }}">
+        {% for issue in items %}{{ rows.row(issue, active_team, assignees) }}{% endfor %}
+      </ul>
+    </section>
+    {% endfor %}
+    {% else %}
+    <p class="hint" style="margin-top:8px">
+      Nothing under this feature yet. Open an issue in
+      {{ active_team.name }} and pick this project on it.
+    </p>
+    {% endif %}
+  </div>
+
+  <aside class="issue-props">
+    <div class="prop-row">
+      <span class="prop-label">Status</span>
+      {{ menus.status_menu(project, 'project-status') }}
+    </div>
+
+    <div class="prop-row">
+      <span class="prop-label">Lead</span>
+      <span class="prop-value">
+        {{ icons.avatar(lead) }}
+        {{ lead.display_name if lead else 'Unassigned' }}
+      </span>
+    </div>
+
+    <div class="prop-row">
+      <span class="prop-label">Team</span>
+      <a class="prop-value" href="/team/{{ active_team.key }}/issues">
+        {{ icons.team_badge(active_team) }} {{ active_team.name }}
+      </a>
+    </div>
+
+    <div class="prop-row">
+      <span class="prop-label">Target</span>
+      <span class="prop-value hint">
+        {{ project.target_date.strftime('%b %d, %Y') if project.target_date else '—' }}
+      </span>
+    </div>
+
+    <div class="prop-row" style="align-items:flex-start">
+      <span class="prop-label">Progress</span>
+      <span class="stack" style="flex:1; gap:6px; padding:4px 6px">
+        <span class="progress-mini" role="img"
+              aria-label="{{ done }} of {{ total }} issues done">
+          <span style="width:{{ percent }}%"></span>
+        </span>
+        <span class="hint">
+          {%- if total -%}{{ done }} of {{ total }} done · {{ percent }}%
+          {%- else -%}No issues yet{%- endif -%}
+        </span>
+      </span>
+    </div>
+
+    <div class="menu-separator" style="margin:12px 0"></div>
+
+    {# The issues are released, not deleted -- see delete_project. Said here
+       so the confirm is not a guess. #}
+    <form method="post" action="/project/{{ project.id }}/delete"
+          data-confirm="Delete {{ project.name }}? Its {{ total }} issue{{ 's' if total != 1 }} stay, without a project.">
+      <button class="btn btn-danger" type="submit">Delete project</button>
+    </form>
+    <p class="hint" style="margin-top:8px">
+      Deleting keeps the issues — they go back to the team's list with no
+      project.
+    </p>
+  </aside>
+</div>
+{% endblock %}

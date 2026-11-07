@@ -1,0 +1,24 @@
+{% import "partials/icons.html" as icons %}
+
+{# The top-left identifies the signed-in account, so this menu is personal
+   only. Switching workspaces moved to the Workspace section header below,
+   where the thing being switched is actually named. #}
+
+<div class="menu" id="account-menu" data-menu hidden role="menu"
+     style="min-width:220px">
+  <div class="menu-label">{{ user.email or user.username }}</div>
+
+  <a class="menu-item" href="/settings/profile" role="menuitem">
+    {{ icons.settings() }}
+    <span class="label">Settings</span>
+    <kbd>G</kbd><kbd>S</kbd>
+  </a>
+
+  <div class="menu-separator"></div>
+
+  <a class="menu-item danger" href="/auth/logout" role="menuitem">
+    {{ icons.logout() }}
+    <span class="label">Log out</span>
+    <kbd>Alt</kbd><kbd>⇧</kbd><kbd>Q</kbd>
+  </a>
+</div>

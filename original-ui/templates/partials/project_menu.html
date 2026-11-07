@@ -1,0 +1,66 @@
+{% import "partials/icons.html" as icons %}
+
+{# Menus that write, so every option is a form rather than a link -- as links
+   the whole page would be prefetchable. Same shape as the issue status menu;
+   see the note there about why every .menu is fixed-positioned. #}
+
+{% macro status_menu(project, menu_id, trigger_class='prop-value') %}
+<div class="menu-anchor">
+  <button class="{{ trigger_class }}" type="button" data-menu-open="{{ menu_id }}">
+    {{ icons.project_status(project.status) }}
+    <span>{{ PROJECT_STATUS_LABELS.get(project.status, project.status) }}</span>
+  </button>
+  <div class="menu" id="{{ menu_id }}" data-menu hidden role="menu"
+       style="min-width:180px">
+    <div class="menu-label">Project status</div>
+    {% for value in PROJECT_STATUSES %}
+    <form method="post" action="/project/{{ project.id }}/status">
+      <input type="hidden" name="project_status" value="{{ value }}">
+      <button class="menu-item" type="submit" role="menuitem">
+        {{ icons.project_status(value) }}
+        <span class="label">{{ PROJECT_STATUS_LABELS[value] }}</span>
+        {% if value == project.status %}<span class="muted">✓</span>{% endif %}
+      </button>
+    </form>
+    {% endfor %}
+  </div>
+</div>
+{% endmacro %}
+
+
+{# The picker on an issue. The first entry detaches, so attaching and
+   detaching go through one route. #}
+{% macro picker(issue, identifier, projects, menu_id) %}
+<div class="menu-anchor">
+  <button class="prop-value" type="button" data-menu-open="{{ menu_id }}">
+    {%- if issue.project -%}
+      {{ icons.projects(13) }}<span>{{ issue.project.name }}</span>
+    {%- else -%}
+      <span class="muted">No project</span>
+    {%- endif -%}
+  </button>
+  <div class="menu" id="{{ menu_id }}" data-menu hidden role="menu"
+       style="min-width:220px">
+    <div class="menu-label">Project</div>
+    <form method="post" action="/issue/{{ identifier }}/project">
+      <input type="hidden" name="project_id" value="">
+      <button class="menu-item" type="submit" role="menuitem">
+        <span class="label muted">No project</span>
+        {% if not issue.project_id %}<span class="muted">✓</span>{% endif %}
+      </button>
+    </form>
+    {% for option in projects %}
+    <form method="post" action="/issue/{{ identifier }}/project">
+      <input type="hidden" name="project_id" value="{{ option.id }}">
+      <button class="menu-item" type="submit" role="menuitem">
+        {{ icons.project_status(option.status) }}
+        <span class="label">{{ option.name }}</span>
+        {% if issue.project_id == option.id %}<span class="muted">✓</span>{% endif %}
+      </button>
+    </form>
+    {% else %}
+    <span class="menu-item pending"><span class="label">No projects yet</span></span>
+    {% endfor %}
+  </div>
+</div>
+{% endmacro %}

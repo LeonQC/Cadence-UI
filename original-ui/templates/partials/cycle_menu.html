@@ -1,0 +1,42 @@
+{% import "partials/icons.html" as icons %}
+
+{# The cycle picker on an issue. First entry unschedules, so scheduling and
+   unscheduling go through one route. Only Current and the ones ahead are
+   offered -- putting work into a cycle that has already closed would make its
+   burn-up disagree with what actually happened. #}
+
+{% macro picker(issue, identifier, options, menu_id) %}
+<div class="menu-anchor">
+  <button class="prop-value" type="button" data-menu-open="{{ menu_id }}">
+    {%- if issue.cycle -%}
+      {{ icons.cycles(13) }}<span>{{ issue.cycle.name }}</span>
+    {%- else -%}
+      <span class="muted">No cycle</span>
+    {%- endif -%}
+  </button>
+  <div class="menu" id="{{ menu_id }}" data-menu hidden role="menu"
+       style="min-width:240px">
+    <div class="menu-label">Cycle</div>
+    <form method="post" action="/issue/{{ identifier }}/cycle">
+      <input type="hidden" name="cycle_id" value="">
+      <button class="menu-item" type="submit" role="menuitem">
+        <span class="label muted">No cycle</span>
+        {% if not issue.cycle_id %}<span class="muted">✓</span>{% endif %}
+      </button>
+    </form>
+    {% for option in options %}
+    <form method="post" action="/issue/{{ identifier }}/cycle">
+      <input type="hidden" name="cycle_id" value="{{ option.cycle.id }}">
+      <button class="menu-item" type="submit" role="menuitem">
+        {{ icons.cycles(13) }}
+        <span class="label">{{ option.cycle.name }}</span>
+        <span class="muted">{{ option.state|capitalize }}</span>
+        {% if issue.cycle_id == option.cycle.id %}<span class="muted">✓</span>{% endif %}
+      </button>
+    </form>
+    {% else %}
+    <span class="menu-item pending"><span class="label">No open cycles</span></span>
+    {% endfor %}
+  </div>
+</div>
+{% endmacro %}

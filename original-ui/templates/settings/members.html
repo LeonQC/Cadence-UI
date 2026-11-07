@@ -1,0 +1,109 @@
+{% extends "settings.html" %}
+{% import "partials/icons.html" as icons %}
+
+{% block page_subtitle %}Who is in {{ workspace.name }}, and what they can do.{% endblock %}
+
+{% block content %}
+<div class="settings-block" style="padding:0">
+  <table class="settings-table">
+    <thead><tr><th>Member</th><th>Role</th><th></th></tr></thead>
+    <tbody>
+      {% for membership, person in member_rows %}
+      <tr>
+        <td>
+          <span class="row" style="gap:8px">
+            {{ icons.avatar(person) }}
+            <span class="stack">
+              <span>{{ person.display_name }}{{ ' (you)' if person.id == user.id }}</span>
+              <span class="hint">{{ person.email or person.username }}</span>
+            </span>
+          </span>
+        </td>
+        <td>
+          {% if person.id == user.id %}
+          <span class="muted" style="text-transform:capitalize">{{ membership.role }}</span>
+          {% else %}
+          <form method="post" action="/settings/members/{{ person.id }}/role">
+            <select class="select" name="role" style="width:120px"
+                    onchange="this.form.submit()">
+              {% for value in roles %}
+              <option value="{{ value }}" {{ 'selected' if membership.role == value }}
+                >{{ value|capitalize }}</option>
+              {% endfor %}
+            </select>
+            <noscript><button class="btn btn-ghost" type="submit">Set</button></noscript>
+          </form>
+          {% endif %}
+        </td>
+        <td style="text-align:right">
+          {% if person.id != user.id %}
+          <form method="post" action="/settings/members/{{ person.id }}/remove"
+                data-confirm="Remove {{ person.display_name }} from {{ workspace.name }}?">
+            <button class="btn btn-danger" type="submit">Remove</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="settings-block">
+  <h2>Invite someone</h2>
+  <p class="hint" style="margin-top:4px">
+    There is no mail server configured here, so no email is sent — the link
+    below is yours to pass on. It expires in two weeks.
+    {% if workspace.allowed_email_domain %}
+    Only addresses at <strong>@{{ workspace.allowed_email_domain }}</strong>
+    can be invited.
+    {% endif %}
+  </p>
+
+  <form method="post" action="/settings/members/invite" style="margin-top:16px">
+    <div class="row" style="gap:12px; align-items:flex-end">
+      <div class="field" style="flex:2; margin-bottom:0">
+        <label for="email">Email</label>
+        <input class="input" id="email" name="email" type="email" required
+               placeholder="teammate@example.com">
+      </div>
+      <div class="field" style="flex:1; margin-bottom:0">
+        <label for="role">Role</label>
+        <select class="select" id="role" name="role">
+          {% for value in roles %}
+          <option value="{{ value }}" {{ 'selected' if value == 'member' }}
+            >{{ value|capitalize }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button class="btn btn-primary" type="submit">Create invite</button>
+    </div>
+  </form>
+</div>
+
+{% if invites %}
+<div class="settings-block" style="padding:0">
+  <table class="settings-table">
+    <thead><tr><th>Pending invite</th><th>Role</th><th>Link</th><th></th></tr></thead>
+    <tbody>
+      {% for invite in invites %}
+      <tr>
+        <td>{{ invite.email }}</td>
+        <td class="muted" style="text-transform:capitalize">{{ invite.role }}</td>
+        <td>
+          <input class="input copyable" readonly
+                 onfocus="this.select()"
+                 value="{{ base_url }}/invite/{{ invite.token }}">
+        </td>
+        <td style="text-align:right">
+          <form method="post" action="/settings/invites/{{ invite.id }}/revoke">
+            <button class="btn btn-ghost" type="submit">Revoke</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}

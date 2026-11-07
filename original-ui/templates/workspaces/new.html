@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{# Centred rather than inside the app shell: this page has to work for someone
+   who has no workspace at all, and a shell with an empty sidebar behind it
+   would be furniture around a dead end. #}
+
+{% block title %}Create a workspace · TodoApp{% endblock %}
+
+{% block body %}
+<div class="auth-screen">
+  <div class="auth-card" style="max-width:400px">
+    <div class="brand">
+      <span class="avatar lg" style="background:#5e6ad2">TD</span> TodoApp
+    </div>
+    <h1>Create a workspace</h1>
+
+    {% if error %}<div class="banner error">{{ error }}</div>{% endif %}
+
+    {% if not workspace %}
+    <div class="banner">
+      Your account has no workspace yet. Make one to get started.
+    </div>
+    {% endif %}
+
+    <form method="post" action="/workspaces/new">
+      <div class="field">
+        <label for="name">Workspace name</label>
+        <input class="input" id="name" name="name" required autofocus
+               placeholder="Acme">
+      </div>
+      <div class="field">
+        <label for="team_key">First team's key</label>
+        <input class="input" id="team_key" name="team_key" value="TODO"
+               maxlength="6" placeholder="TODO">
+        <p class="hint" style="margin-top:6px">
+          Prefixes every issue in that team — <code>TODO-1</code>,
+          <code>TODO-2</code>. Up to 6 characters.
+        </p>
+      </div>
+      <button class="btn btn-primary btn-lg btn-block" type="submit">
+        Create workspace
+      </button>
+    </form>
+
+    {% if workspace %}
+    <div class="auth-footer"><a href="/">Back to {{ workspace.name }}</a></div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
