@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Sign up · TodoApp{% endblock %}
+
+{% block body %}
+<div class="auth-screen">
+  <div class="auth-card" style="max-width:380px">
+    <div class="brand">
+      <span class="avatar lg" style="background:#5e6ad2">TD</span> TodoApp
+    </div>
+    <h1>Create your account</h1>
+
+    {% if msg %}
+    <div class="banner error">{{ msg }}</div>
+    {% endif %}
+
+    <form method="post" action="/auth/register">
+      <div class="field">
+        <label for="email">Email</label>
+        <input class="input" id="email" name="email" type="email"
+               autocomplete="email" required autofocus>
+      </div>
+      <div class="field">
+        <label for="username">Username</label>
+        <input class="input" id="username" name="username"
+               autocomplete="username" required>
+      </div>
+      <div class="row" style="gap:12px">
+        <div class="field" style="flex:1">
+          <label for="firstname">First name</label>
+          <input class="input" id="firstname" name="firstname"
+                 autocomplete="given-name" required>
+        </div>
+        <div class="field" style="flex:1">
+          <label for="lastname">Last name</label>
+          <input class="input" id="lastname" name="lastname"
+                 autocomplete="family-name" required>
+        </div>
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input class="input" id="password" name="password" type="password"
+               autocomplete="new-password" required>
+      </div>
+      <div class="field">
+        <label for="password2">Confirm password</label>
+        <input class="input" id="password2" name="password2" type="password"
+               autocomplete="new-password" required>
+      </div>
+      <button class="btn btn-primary btn-lg btn-block" type="submit">
+        Create account
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      Already have an account? <a href="/auth/">Log in</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

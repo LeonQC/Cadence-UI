@@ -1,0 +1,343 @@
+{% extends "app.html" %}
+{% import "partials/icons.html" as icons %}
+
+{# The team's landing page. The reference pairs a description and a member
+   list with a "Go to" rail; this app has no documents to fill the space under
+   them, so the charts that used to be a separate Summary tab live here. #}
+
+{% block title %}{{ active_team.name }} · TodoApp{% endblock %}
+
+{% block heading %}
+{{ icons.team_badge(active_team, 15) }}
+<span>{{ active_team.name }}</span>
+{% endblock %}
+
+{% block header_actions %}
+<a class="btn btn-secondary" href="/team/{{ active_team.key }}/new">
+  {{ icons.plus(13) }} New issue
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="summary">
+
+  <header class="team-overview">
+    <div class="overview-main">
+      <h1>{{ active_team.name }}</h1>
+      {% if active_team.description %}
+      <p class="overview-description">{{ active_team.description }}</p>
+      {% else %}
+      <p class="overview-description muted">
+        No description yet.{% if ctx.is_admin %}
+        <a href="/settings/teams/{{ active_team.key }}">Add one</a>.{% endif %}
+      </p>
+      {% endif %}
+    </div>
+
+    <aside class="overview-rail">
+      <h2>Members</h2>
+      <div class="rail-avatars">
+        {% for person in team_members %}
+        {{ icons.avatar(person) }}
+        {% else %}
+        <span class="hint">Nobody yet</span>
+        {% endfor %}
+      </div>
+
+      <h2>Go to</h2>
+      <a class="rail-link" href="/team/{{ active_team.key }}/issues">
+        {{ icons.issues_icon(13) }} Issues</a>
+      <a class="rail-link" href="/team/{{ active_team.key }}/cycles">
+        {{ icons.cycles(13) }} Cycles</a>
+      <a class="rail-link" href="/team/{{ active_team.key }}/projects">
+        {{ icons.projects(13) }} Projects</a>
+      {% if ctx.is_admin %}
+      <a class="rail-link" href="/settings/teams/{{ active_team.key }}">
+        {{ icons.settings(13) }} Team settings</a>
+      {% endif %}
+    </aside>
+  </header>
+
+  {% if total == 0 %}
+  <div class="empty-state">
+    <span class="title">Nothing to summarise yet</span>
+    <span>Create an issue and this page starts keeping score.</span>
+    <a class="btn btn-primary" href="/team/{{ active_team.key }}/new"
+       style="margin-top:8px">{{ icons.plus(13) }} New issue</a>
+  </div>
+  {% else %}
+
+  <section class="kpi-row" aria-label="Headline numbers">
+    {% for tile in tiles %}
+    <div class="stat-tile">
+      <span class="stat-label">{{ tile.label }}</span>
+      <span class="stat-value">{{ tile.value }}</span>
+      {% if tile.delta is not none %}
+      <span class="stat-delta{{ ' up' if tile.good == 'up' and tile.delta > 0 }}{{ ' down' if tile.good == 'up' and tile.delta < 0 }}">
+        {{ '+' if tile.delta > 0 }}{{ tile.delta }}
+        <span class="muted">{{ tile.note }}</span>
+      </span>
+      {% else %}
+      <span class="stat-delta"><span class="muted">{{ tile.note }}</span></span>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </section>
+
+  <div class="chart-grid">
+    <figure class="chart-card">
+      <figcaption>
+        <h2>Status</h2>
+        <p class="hint">Where the team's {{ total }} issue{{ 's' if total != 1 }}
+          currently sit.</p>
+      </figcaption>
+
+      <div class="bars">
+        {% for row in status_rows %}
+        <div class="bar-row">
+          <span class="bar-label">
+            {{ icons.status(row.key) }} {{ STATUS_LABELS[row.key] }}
+          </span>
+          <span class="bar-track">
+            {% if row.count %}
+            <span class="bar" style="width:{{ row.width }}%"></span>
+            {% endif %}
+          </span>
+          <span class="bar-value">{{ row.count }}</span>
+        </div>
+        {% endfor %}
+      </div>
+
+      <details class="table-view">
+        <summary>Show data</summary>
+        <table class="data-table">
+          <thead><tr><th>Status</th><th>Issues</th><th>Share</th></tr></thead>
+          <tbody>
+            {% for row in status_rows %}
+            <tr><td>{{ STATUS_LABELS[row.key] }}</td><td>{{ row.count }}</td>
+              <td>{{ row.percent }}%</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </details>
+    </figure>
+
+    <figure class="chart-card">
+      <figcaption>
+        <h2>Priority</h2>
+        <p class="hint">P1 is the most urgent.</p>
+      </figcaption>
+
+      <div class="bars">
+        {% for row in priority_rows %}
+        <div class="bar-row">
+          <span class="bar-label">
+            {{ icons.priority(row.key) }} P{{ row.key }}
+          </span>
+          <span class="bar-track">
+            {% if row.count %}
+            <span class="bar" style="width:{{ row.width }}%"></span>
+            {% endif %}
+          </span>
+          <span class="bar-value">{{ row.count }}</span>
+        </div>
+        {% endfor %}
+      </div>
+
+      <details class="table-view">
+        <summary>Show data</summary>
+        <table class="data-table">
+          <thead><tr><th>Priority</th><th>Issues</th><th>Share</th></tr></thead>
+          <tbody>
+            {% for row in priority_rows %}
+            <tr><td>P{{ row.key }}</td><td>{{ row.count }}</td>
+              <td>{{ row.percent }}%</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </details>
+    </figure>
+  </div>
+
+  {% if projects %}
+  <figure class="chart-card">
+    <figcaption class="row between">
+      <div>
+        <h2>Projects</h2>
+        <p class="hint">How far each feature has got. A bar is the share of
+          that project's own issues that are done.</p>
+      </div>
+      <a class="btn btn-ghost" href="/team/{{ active_team.key }}/projects">
+        All projects</a>
+    </figcaption>
+
+    <div class="bars">
+      {% for row in projects %}
+      <div class="bar-row">
+        <a class="bar-label" href="/project/{{ row.project.id }}">
+          {{ icons.project_status(row.project.status) }} {{ row.project.name }}
+        </a>
+        <span class="bar-track">
+          {% if row.percent %}
+          <span class="bar" style="width:{{ row.percent }}%"></span>
+          {% endif %}
+        </span>
+        <span class="bar-value">{{ row.done }}/{{ row.total }}</span>
+      </div>
+      {% endfor %}
+    </div>
+
+    <details class="table-view">
+      <summary>Show data</summary>
+      <table class="data-table">
+        <thead><tr><th>Project</th><th>Status</th><th>Done</th><th>Issues</th>
+          <th>Progress</th></tr></thead>
+        <tbody>
+          {% for row in projects %}
+          <tr><td>{{ row.project.name }}</td>
+            <td>{{ PROJECT_STATUS_LABELS[row.project.status] }}</td>
+            <td>{{ row.done }}</td><td>{{ row.total }}</td>
+            <td>{{ row.percent }}%</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </details>
+  </figure>
+  {% endif %}
+
+  <figure class="chart-card">
+    <figcaption class="row between">
+      <div>
+        <h2>Created vs completed</h2>
+        <p class="hint">Last 14 days.</p>
+      </div>
+      {# A legend, always, for two series: colour matching alone is not an
+         identity channel. #}
+      <div class="legend">
+        {% for series in trend.series %}
+        <span class="legend-item">
+          <span class="key key-{{ series.role }}"></span>
+          {{ series.name }} <b>{{ series.total }}</b>
+        </span>
+        {% endfor %}
+      </div>
+    </figcaption>
+
+    <svg class="trend" viewBox="0 0 {{ trend.box.width }} {{ trend.box.height }}"
+         role="img" preserveAspectRatio="xMidYMid meet"
+         aria-label="Issues created and completed each day over the last 14 days.
+                     Created {{ trend.series[0].total }} in total,
+                     completed {{ trend.series[1].total }}.">
+      {% for line in trend.gridlines %}
+      <line class="grid" x1="{{ trend.box.left }}" y1="{{ line.y }}"
+            x2="{{ trend.box.right }}" y2="{{ line.y }}"
+            vector-effect="non-scaling-stroke"/>
+      <text class="tick" x="{{ trend.box.left - 10 }}" y="{{ line.y + 4 }}"
+            text-anchor="end">{{ line.value }}</text>
+      {% endfor %}
+
+      {% for series in trend.series %}
+      <polyline class="trend-line line-{{ series.role }}"
+                points="{{ series.points }}"
+                vector-effect="non-scaling-stroke"/>
+      {% endfor %}
+
+      {% for series in trend.series %}
+      {# End markers carry a surface-coloured ring so they stay legible where
+         the two lines cross. #}
+      <circle class="trend-dot dot-{{ series.role }}"
+              cx="{{ series.end[0] }}" cy="{{ series.end[1] }}" r="4"/>
+      {% if trend.label_ends %}
+      <text class="end-label" x="{{ series.end[0] - 10 }}"
+            y="{{ series.end[1] - 9 }}" text-anchor="end"
+        >{{ series.end_value }}</text>
+      {% endif %}
+      {% endfor %}
+
+      {% for day in trend.dates %}
+      <text class="tick" x="{{ day.x }}" y="{{ trend.box.height - 6 }}"
+            text-anchor="middle">{{ day.text }}</text>
+      {% endfor %}
+    </svg>
+
+    <details class="table-view">
+      <summary>Show data</summary>
+      <table class="data-table">
+        <thead><tr><th>Day</th><th>Created</th><th>Completed</th></tr></thead>
+        <tbody>
+          {% for row in trend_rows %}
+          <tr><td>{{ row.date.strftime('%b %d') }}</td>
+            <td>{{ row.created }}</td><td>{{ row.completed }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </details>
+  </figure>
+
+  <div class="chart-grid">
+    <figure class="chart-card">
+      <figcaption>
+        <h2>Workload</h2>
+        <p class="hint">Open issues per person — finished work is not a load,
+          so it is not counted here.</p>
+      </figcaption>
+
+      {% if workload %}
+      <div class="bars">
+        {% for row in workload %}
+        <div class="bar-row">
+          <span class="bar-label">
+            {{ icons.avatar(row.person) }}
+            {{ row.person.display_name if row.person else 'Unassigned' }}
+          </span>
+          <span class="bar-track">
+            <span class="bar" style="width:{{ row.width }}%"></span>
+          </span>
+          <span class="bar-value">{{ row.count }}</span>
+        </div>
+        {% endfor %}
+      </div>
+
+      <details class="table-view">
+        <summary>Show data</summary>
+        <table class="data-table">
+          <thead><tr><th>Person</th><th>Open issues</th><th>Share</th></tr></thead>
+          <tbody>
+            {% for row in workload %}
+            <tr><td>{{ row.person.display_name if row.person else 'Unassigned' }}</td>
+              <td>{{ row.count }}</td><td>{{ row.percent }}%</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </details>
+      {% else %}
+      <p class="hint" style="padding:12px 0">Nothing open — the team is clear.</p>
+      {% endif %}
+    </figure>
+
+    <section class="chart-card">
+      <figcaption>
+        <h2>Recent activity</h2>
+        <p class="hint">The last {{ recent|length }} issue{{ 's' if recent|length != 1 }}
+          to change.</p>
+      </figcaption>
+
+      <ul class="activity">
+        {% for entry in recent %}
+        <li>
+          {{ icons.status(entry.issue.status) }}
+          <a class="identifier"
+             href="/issue/{{ active_team.key }}-{{ entry.issue.number }}"
+            >{{ active_team.key }}-{{ entry.issue.number }}</a>
+          <a class="activity-title"
+             href="/issue/{{ active_team.key }}-{{ entry.issue.number }}"
+            >{{ entry.issue.title }}</a>
+          <span class="hint">{{ relative_time(entry.issue.updated_at) }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

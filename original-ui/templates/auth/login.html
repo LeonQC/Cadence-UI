@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Log in · TodoApp{% endblock %}
+
+{% block body %}
+<div class="auth-screen">
+  <div class="auth-card">
+    <div class="brand">
+      <span class="avatar lg" style="background:#5e6ad2">TD</span> TodoApp
+    </div>
+    <h1>Log in</h1>
+
+    {% if msg %}
+    <div class="banner {{ 'success' if msg in ('Logout Successful', 'User successfully created') else 'error' }}">
+      {{ msg }}
+    </div>
+    {% endif %}
+
+    <form method="post" action="/auth/">
+      <div class="field">
+        <label for="username">Username</label>
+        <input class="input" id="username" name="email" autocomplete="username"
+               required autofocus>
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input class="input" id="password" name="password" type="password"
+               autocomplete="current-password" required>
+      </div>
+      <button class="btn btn-primary btn-lg btn-block" type="submit">Continue</button>
+    </form>
+
+    {% if google_login_enabled() %}
+    <div class="auth-divider">or</div>
+    <a class="btn btn-secondary btn-lg btn-block" href="/auth/google">
+      Continue with Google
+    </a>
+    {% endif %}
+
+    <div class="auth-footer">
+      Don't have an account? <a href="/auth/register">Sign up</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

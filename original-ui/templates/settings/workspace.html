@@ -1,0 +1,58 @@
+{% extends "settings.html" %}
+
+{% block page_subtitle %}Name and address for {{ workspace.name }}.{% endblock %}
+
+{% block content %}
+<form method="post" action="/settings/workspace">
+  <div class="settings-block">
+    <div class="field">
+      <label for="name">Workspace name</label>
+      <input class="input" id="name" name="name" value="{{ workspace.name }}"
+             required>
+    </div>
+    <div class="field" style="margin-bottom:0">
+      <label for="slug">Workspace URL</label>
+      <div class="field-row">
+        <span class="prefix">/</span>
+        <input class="input" id="slug" name="slug" value="{{ workspace.slug }}"
+               required>
+      </div>
+      <p class="hint" style="margin-top:6px">
+        Identifies the workspace in the switcher. Lower case, letters, numbers
+        and dashes.
+      </p>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button class="btn btn-primary" type="submit">Save changes</button>
+  </div>
+</form>
+
+{% if is_owner %}
+<div class="settings-block danger-zone">
+  <h2>Delete this workspace</h2>
+  <p class="hint" style="margin-top:4px">
+    Removes every team, issue, member and pending invite in
+    <strong>{{ workspace.name }}</strong>. There is no undo.
+    {% if workspace_count < 2 %}
+    You only belong to this one, so it cannot be deleted — create another
+    first.
+    {% endif %}
+  </p>
+
+  <form method="post" action="/settings/workspace/delete" style="margin-top:16px"
+        data-confirm="Delete {{ workspace.name }} and everything in it?">
+    <div class="field">
+      <label for="confirm_name">Type <strong>{{ workspace.name }}</strong> to confirm</label>
+      <input class="input" id="confirm_name" name="confirm_name"
+             autocomplete="off" {{ 'disabled' if workspace_count < 2 }}>
+    </div>
+    <button class="btn btn-danger" type="submit"
+            {{ 'disabled' if workspace_count < 2 }}>Delete workspace</button>
+  </form>
+</div>
+{% else %}
+<p class="hint">Only the workspace owner can delete it.</p>
+{% endif %}
+{% endblock %}

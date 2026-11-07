@@ -1,0 +1,59 @@
+{% extends "settings.html" %}
+
+{% block page_subtitle %}How people are allowed to reach {{ workspace.name }}.{% endblock %}
+
+{% block content %}
+<form method="post" action="/settings/workspace/security">
+  <div class="settings-block">
+    <h2>Sign-in methods</h2>
+    <p class="hint" style="margin-top:4px">
+      Checked in this workspace when a session opens it, not at the login form
+      — a member can belong to several workspaces with different rules, so
+      which rules apply is only knowable once a workspace is resolved.
+    </p>
+
+    <label class="toggle-row">
+      <input type="checkbox" name="allow_password_login" value="1"
+             {{ 'checked' if workspace.allow_password_login }}>
+      <span class="stack">
+        <span>Password</span>
+        <span class="hint">Sessions signed in with a username and password.</span>
+      </span>
+    </label>
+
+    <label class="toggle-row">
+      <input type="checkbox" name="allow_google_login" value="1"
+             {{ 'checked' if workspace.allow_google_login }}>
+      <span class="stack">
+        <span>Google</span>
+        <span class="hint">Sessions signed in through Google.</span>
+      </span>
+    </label>
+
+    <p class="hint" style="margin-top:12px">
+      At least one has to stay on, and you cannot turn off the one you are
+      currently using — that would lock you out of this workspace immediately.
+      API keys are unaffected either way.
+    </p>
+  </div>
+
+  <div class="settings-block">
+    <h2>Allowed email domain</h2>
+    <p class="hint" style="margin-top:4px">
+      When set, only addresses at this domain can be invited or accept an
+      invite. Leave empty for no restriction.
+    </p>
+    <div class="field" style="margin-top:12px; margin-bottom:0; max-width:280px">
+      <div class="field-row">
+        <span class="prefix">@</span>
+        <input class="input" name="allowed_email_domain" placeholder="example.com"
+               value="{{ workspace.allowed_email_domain or '' }}">
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button class="btn btn-primary" type="submit">Save changes</button>
+  </div>
+</form>
+{% endblock %}

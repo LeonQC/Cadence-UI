@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{# Centred rather than inside the app shell: the person following this link is
+   being asked about a workspace they are not in yet, so the sidebar behind it
+   would be someone else's. #}
+
+{% block title %}Join a workspace · TodoApp{% endblock %}
+
+{% block body %}
+<div class="auth-screen">
+  <div class="auth-card" style="max-width:400px; text-align:center">
+    <div class="brand">
+      <span class="avatar lg" style="background:#5e6ad2">TD</span> TodoApp
+    </div>
+
+    {% if problem %}
+    <h1>Invite unavailable</h1>
+    <div class="banner error" style="text-align:left">{{ problem }}</div>
+    <a class="btn btn-secondary btn-lg btn-block" href="/">Back to the app</a>
+
+    {% elif already_member %}
+    <h1>Already a member</h1>
+    <p class="hint" style="margin-bottom:24px">
+      You are already in {{ invite.workspace.name }}.
+    </p>
+    <form method="post" action="/invite/{{ token }}">
+      <button class="btn btn-primary btn-lg btn-block" type="submit">
+        Open {{ invite.workspace.name }}
+      </button>
+    </form>
+
+    {% else %}
+    <h1>Join {{ invite.workspace.name }}</h1>
+    <p class="hint" style="margin-bottom:24px">
+      {{ invite.invited_by.display_name if invite.invited_by else 'Someone' }}
+      invited {{ invite.email }} to join as
+      <strong>{{ invite.role }}</strong>. You are signed in as
+      {{ user.display_name }}.
+    </p>
+    <form method="post" action="/invite/{{ token }}">
+      <button class="btn btn-primary btn-lg btn-block" type="submit">
+        Accept invite
+      </button>
+    </form>
+    <div class="auth-footer"><a href="/">No thanks</a></div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "app.html" %}
+{% import "partials/icons.html" as icons %}
+{% import "partials/issue_row.html" as rows %}
+
+{# Not team-scoped: this is everything assigned to you across the workspace,
+   so each row has to say which team it came from. #}
+
+{% block title %}My issues · TodoApp{% endblock %}
+
+{% block heading %}
+{{ icons.my_issues(15) }}
+<span>My issues</span>
+<span class="muted">{{ total }}</span>
+{% endblock %}
+
+{% block content %}
+{% if groups %}
+{% for value, items in groups %}
+<section class="issue-group">
+  <div class="issue-group-header">
+    <button class="group-toggle" type="button" data-collapse="group-{{ value }}"
+            aria-expanded="true">
+      <span class="chev">{{ icons.chevron_down(11) }}</span>
+      {{ icons.status(value) }}
+      <span>{{ STATUS_LABELS[value] }}</span>
+      <span class="count">{{ items|length }}</span>
+    </button>
+  </div>
+  <ul id="group-{{ value }}">
+    {% for issue in items %}
+    {% if teams_by_id.get(issue.team_id) %}
+    {{ rows.row(issue, teams_by_id[issue.team_id], assignees) }}
+    {% endif %}
+    {% endfor %}
+  </ul>
+</section>
+{% endfor %}
+{% else %}
+<div class="empty-state">
+  <span class="title">Nothing assigned to you</span>
+  <span>Issues assigned to you in any team in {{ workspace.name }} show up here.</span>
+</div>
+{% endif %}
+{% endblock %}

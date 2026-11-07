@@ -1,0 +1,101 @@
+{% extends "app.html" %}
+{% import "partials/icons.html" as icons %}
+{% import "partials/status_menu.html" as menus %}
+{% import "partials/project_menu.html" as projects %}
+{% import "partials/cycle_menu.html" as cycles %}
+
+{% set identifier = active_team.key ~ '-' ~ issue.number %}
+
+{% block title %}{{ identifier }} {{ issue.title }} · TodoApp{% endblock %}
+
+{% block header %}
+<nav class="breadcrumb">
+  <a href="/team/{{ active_team.key }}/issues">{{ active_team.name }}</a>
+  {{ icons.chevron_right(11) }}
+  <span class="current">{{ identifier }}</span>
+</nav>
+<span class="spacer"></span>
+<a class="btn btn-secondary" href="/issue/{{ identifier }}/edit">Edit</a>
+{% endblock %}
+
+{% block content %}
+<div class="issue-detail">
+  <div>
+    <h1>{{ issue.title }}</h1>
+    <div class="issue-description">
+      {%- if issue.description -%}{{ issue.description }}
+      {%- else -%}<span class="muted">No description</span>{%- endif -%}
+    </div>
+  </div>
+
+  <aside class="issue-props">
+    <div class="prop-row">
+      <span class="prop-label">Status</span>
+      {{ menus.status_menu(issue, identifier, 'detail-status', 'prop-value') }}
+    </div>
+
+    <div class="prop-row">
+      <span class="prop-label">Priority</span>
+      {{ menus.priority_menu(issue, identifier, 'detail-priority') }}
+    </div>
+
+    <div class="prop-row">
+      <span class="prop-label">Project</span>
+      {{ projects.picker(issue, identifier, team_projects, 'detail-project') }}
+    </div>
+
+    <div class="prop-row">
+      <span class="prop-label">Cycle</span>
+      {{ cycles.picker(issue, identifier, open_cycles, 'detail-cycle') }}
+    </div>
+
+    <div class="prop-row">
+      <span class="prop-label">Assignee</span>
+      <span class="prop-value">
+        {{ icons.avatar(assignee) }}
+        {{ assignee.display_name if assignee else 'Unassigned' }}
+      </span>
+    </div>
+
+    <div class="prop-row">
+      <span class="prop-label">Created by</span>
+      <span class="prop-value">
+        {{ icons.avatar(creator) }}
+        {{ creator.display_name if creator else 'Unknown' }}
+      </span>
+    </div>
+
+    <div class="prop-row">
+      <span class="prop-label">Created</span>
+      <span class="prop-value hint">
+        {{ issue.created_at.strftime('%b %d, %Y') if issue.created_at else '—' }}
+      </span>
+    </div>
+
+    <div class="prop-row">
+      <span class="prop-label">Updated</span>
+      <span class="prop-value hint">
+        {{ issue.updated_at.strftime('%b %d, %Y') if issue.updated_at else '—' }}
+      </span>
+    </div>
+
+    {% if issue.completed_at %}
+    <div class="prop-row">
+      <span class="prop-label">Completed</span>
+      <span class="prop-value hint">
+        {{ issue.completed_at.strftime('%b %d, %Y') }}
+      </span>
+    </div>
+    {% endif %}
+
+    <div class="menu-separator" style="margin:12px 0"></div>
+
+    {# POST, and confirmed: the old delete was a plain link, which any
+       prefetcher could follow. #}
+    <form method="post" action="/issue/{{ identifier }}/delete"
+          data-confirm="Delete {{ identifier }}? This cannot be undone.">
+      <button class="btn btn-danger" type="submit">Delete issue</button>
+    </form>
+  </aside>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "settings.html" %}
+
+{% block page_subtitle %}The ways this account can sign in.{% endblock %}
+
+{% block content %}
+<div class="settings-block">
+  <div class="row between">
+    <div class="row" style="gap:12px">
+      <span class="avatar lg" style="background:#4285f4">G</span>
+      <div class="stack">
+        <span style="font-weight:500">Google</span>
+        <span class="hint">
+          {%- if user.google_sub -%}
+            Connected{{ ' · ' ~ user.email if user.email }}
+          {%- elif google_enabled -%}
+            Not connected
+          {%- else -%}
+            Not configured on this server
+          {%- endif -%}
+        </span>
+      </div>
+    </div>
+
+    {% if user.google_sub %}
+    <form method="post" action="/settings/accounts/google/disconnect"
+          data-confirm="Disconnect Google from this account?">
+      <button class="btn btn-danger" type="submit"
+              {{ 'disabled' if not has_password }}>Disconnect</button>
+    </form>
+    {% elif google_enabled %}
+    <a class="btn btn-secondary" href="/auth/google/link">Connect</a>
+    {% else %}
+    <span class="hint">Unavailable</span>
+    {% endif %}
+  </div>
+
+  {% if user.google_sub and not has_password %}
+  <p class="hint" style="margin-top:12px">
+    Google is currently your only way in, so it cannot be disconnected.
+    <a href="/settings/security">Set a password</a> first.
+  </p>
+  {% endif %}
+</div>
+
+<div class="settings-block">
+  <div class="row between">
+    <div class="row" style="gap:12px">
+      <span class="avatar lg" style="background:{{ avatar_color(user) }}">
+        {{ initials(user) }}</span>
+      <div class="stack">
+        <span style="font-weight:500">Password</span>
+        <span class="hint">
+          {{ 'Set' if has_password else 'Not set' }} · signs in as
+          {{ user.username }}
+        </span>
+      </div>
+    </div>
+    <a class="btn btn-secondary" href="/settings/security">
+      {{ 'Change' if has_password else 'Set a password' }}
+    </a>
+  </div>
+</div>
+{% endblock %}

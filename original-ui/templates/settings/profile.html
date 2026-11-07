@@ -1,0 +1,70 @@
+{% extends "settings.html" %}
+{% import "partials/icons.html" as icons %}
+
+{% block page_subtitle %}How you appear to everyone in {{ workspace.name }}.{% endblock %}
+
+{% block content %}
+<form method="post" action="/settings/profile">
+  <div class="settings-block">
+    <div class="row" style="gap:16px; margin-bottom:20px">
+      <span class="avatar xl" style="background:{{ avatar_color(user) }}">
+        {{ initials(user) }}</span>
+      <div class="stack">
+        <span style="font-weight:500">{{ user.display_name }}</span>
+        <span class="hint">{{ user.email or 'No email on file' }}</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Avatar colour</label>
+      <div class="swatches">
+        {% for colour in palette %}
+        <label class="swatch" style="background:{{ colour }}"
+               title="{{ colour }}">
+          <input type="radio" name="avatar_color" value="{{ colour }}"
+                 {{ 'checked' if avatar_color(user) == colour }}>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-block">
+    <h2>Name</h2>
+    <div class="row" style="gap:12px; margin-top:12px">
+      <div class="field" style="flex:1; margin-bottom:0">
+        <label for="first_name">First name</label>
+        <input class="input" id="first_name" name="first_name"
+               value="{{ user.first_name or '' }}">
+      </div>
+      <div class="field" style="flex:1; margin-bottom:0">
+        <label for="last_name">Last name</label>
+        <input class="input" id="last_name" name="last_name"
+               value="{{ user.last_name or '' }}">
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-block">
+    <h2>Account</h2>
+    <div class="field" style="margin-top:12px">
+      <label for="username">Username</label>
+      <input class="input" id="username" name="username"
+             value="{{ user.username }}" required>
+      <p class="hint" style="margin-top:6px">This is what you sign in with.</p>
+    </div>
+    <div class="field" style="margin-bottom:0">
+      <label for="email">Email</label>
+      <input class="input" id="email" name="email" type="email"
+             value="{{ user.email or '' }}">
+      <p class="hint" style="margin-top:6px">
+        Invites to other workspaces are matched against this address.
+      </p>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button class="btn btn-primary" type="submit">Save changes</button>
+  </div>
+</form>
+{% endblock %}

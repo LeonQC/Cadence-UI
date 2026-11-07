@@ -1,0 +1,57 @@
+{% import "partials/icons.html" as icons %}
+
+{# Menus that write. Each option is its own form rather than a link, because
+   these change state -- as links the whole list would be prefetchable.
+
+   These sit inside the scrolling issue list, which would clip them if they
+   were positioned within it -- every .menu is fixed and placed by app.js
+   instead, so there is nothing to remember here. #}
+
+{% macro status_menu(issue, identifier, menu_id, trigger_class='status-trigger') %}
+<div class="menu-anchor">
+  <button class="{{ trigger_class }}" type="button" data-menu-open="{{ menu_id }}"
+          title="{{ STATUS_LABELS.get(issue.status, issue.status) }}">
+    {{ icons.status(issue.status) }}
+    {%- if trigger_class != 'status-trigger' -%}
+    <span>{{ STATUS_LABELS.get(issue.status, issue.status) }}</span>
+    {%- endif -%}
+  </button>
+  <div class="menu" id="{{ menu_id }}" data-menu hidden
+       role="menu" style="min-width:180px">
+    <div class="menu-label">Status</div>
+    {% for value in STATUSES %}
+    <form method="post" action="/issue/{{ identifier }}/status">
+      <input type="hidden" name="issue_status" value="{{ value }}">
+      <button class="menu-item" type="submit" role="menuitem">
+        {{ icons.status(value) }}
+        <span class="label">{{ STATUS_LABELS[value] }}</span>
+        {% if value == issue.status %}<span class="muted">✓</span>{% endif %}
+      </button>
+    </form>
+    {% endfor %}
+  </div>
+</div>
+{% endmacro %}
+
+
+{% macro priority_menu(issue, identifier, menu_id) %}
+<div class="menu-anchor">
+  <button class="prop-value" type="button" data-menu-open="{{ menu_id }}">
+    {{ icons.priority(issue.priority) }}<span>P{{ issue.priority }}</span>
+  </button>
+  <div class="menu" id="{{ menu_id }}" data-menu hidden
+       role="menu" style="min-width:160px">
+    <div class="menu-label">Priority</div>
+    {% for level in range(1, 6) %}
+    <form method="post" action="/issue/{{ identifier }}/priority">
+      <input type="hidden" name="priority" value="{{ level }}">
+      <button class="menu-item" type="submit" role="menuitem">
+        {{ icons.priority(level) }}
+        <span class="label">P{{ level }}</span>
+        {% if level == issue.priority %}<span class="muted">✓</span>{% endif %}
+      </button>
+    </form>
+    {% endfor %}
+  </div>
+</div>
+{% endmacro %}

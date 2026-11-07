@@ -1,0 +1,52 @@
+{% extends "app.html" %}
+{% import "partials/icons.html" as icons %}
+
+{% block title %}New issue · {{ active_team.name }} · TodoApp{% endblock %}
+
+{% block heading %}
+{{ icons.team_badge(active_team, 15) }}
+<span>New issue in {{ active_team.name }}</span>
+{% endblock %}
+
+{% block content %}
+<div class="content-narrow">
+  <form method="post" action="/team/{{ active_team.key }}/new">
+    <div class="field">
+      <label for="title">Title</label>
+      <input class="input" id="title" name="title" required autofocus
+             placeholder="Issue title">
+    </div>
+
+    <div class="field">
+      <label for="description">Description</label>
+      <textarea class="textarea" id="description" name="description"
+                placeholder="Add more detail…"></textarea>
+    </div>
+
+    <div class="row" style="gap:12px; align-items:flex-end">
+      <div class="field" style="flex:1; margin-bottom:0">
+        <label for="issue_status">Status</label>
+        <select class="select" id="issue_status" name="issue_status">
+          {% for value in STATUSES %}
+          <option value="{{ value }}" {{ 'selected' if value == 'todo' }}>
+            {{ STATUS_LABELS[value] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="field" style="flex:1; margin-bottom:0">
+        <label for="priority">Priority</label>
+        <select class="select" id="priority" name="priority">
+          {% for level in range(1, 6) %}
+          <option value="{{ level }}" {{ 'selected' if level == 3 }}>P{{ level }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">Create issue</button>
+      <a class="btn btn-ghost" href="/team/{{ active_team.key }}/issues">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

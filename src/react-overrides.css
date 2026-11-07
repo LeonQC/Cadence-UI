@@ -1,0 +1,77 @@
+.icon{width:16px;display:inline-flex;justify-content:center;color:var(--text-tertiary)}
+.status-select{appearance:none;background:transparent;border:0;color:var(--text-tertiary);width:22px;padding:0;cursor:pointer}
+.status-select:focus{outline:1px solid var(--accent);border-radius:4px}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.58);display:grid;place-items:center;z-index:20}
+.modal{width:min(420px,calc(100vw - 32px));padding:20px;background:var(--bg-elevated);border:1px solid var(--border-strong);border-radius:var(--radius-lg)}
+.modal h2{margin:0 0 18px;color:var(--text-primary)}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.loading{min-height:100vh;display:grid;place-items:center;background:var(--bg-app);color:var(--text-secondary)}
+.team-mark{color:var(--accent);margin-right:8px}
+.cycles-tabs{display:flex;gap:4px;margin:0 0 18px;padding:3px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;width:max-content}
+.cycles-tab{border:0;background:transparent;color:var(--muted);padding:6px 12px;border-radius:6px;font:inherit;cursor:pointer}
+.cycles-tab:hover{color:var(--text);background:var(--surface-3)}
+.cycles-tab.active{color:var(--text);background:var(--surface-1);box-shadow:0 1px 2px rgba(0,0,0,.18)}
+.cycles-page>ul{margin-top:0}
+
+/* New issue is an app page in the original templates, not a card beside the
+   workspace. The React form is mounted after the shell, so place it over the
+   content panel with the same inset spacing while it is open. */
+.app > .content-narrow {
+  position: absolute;
+  z-index: 5;
+  left: 256px;
+  right: 8px;
+  top: 8px;
+  bottom: 8px;
+  max-width: none;
+  margin: 0;
+  padding: 32px 24px 64px;
+  overflow-y: auto;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.page-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.cycle-list{display:grid;gap:10px}
+.cycle-card{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding:16px}
+.cycle-card h2{margin:0;color:var(--text-primary);font-size:var(--fs-lg)}
+.cycle-count{grid-column:1/-1;color:var(--text-tertiary);font-size:var(--fs-sm)}
+.cycle-button{width:100%;border:1px solid var(--border);text-align:left;color:inherit;cursor:pointer}
+.badge{color:var(--text-tertiary);font-size:var(--fs-xs);border:1px solid var(--border-strong);border-radius:999px;padding:3px 7px}
+.settings-page{max-width:620px}
+.issue-title-button{border:0;background:none;text-align:left;font:inherit;cursor:pointer;padding:0;color:inherit}
+.detail-page{max-width:1000px}
+.detail-header{display:flex;align-items:center;justify-content:space-between;margin:22px 0}
+.detail-header h1{margin:4px 0;color:var(--text-primary)}
+.detail-layout{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:14px}
+.detail-description,.detail-properties{padding:18px;display:grid;gap:10px}
+.detail-properties label,.detail-description label{color:var(--text-tertiary);font-size:var(--fs-sm)}
+.property-value{color:var(--text-secondary);padding:7px 0}
+@media(max-width:700px){.detail-layout{grid-template-columns:1fr}}
+.project-card{border:1px solid var(--border);text-align:left;color:inherit;cursor:pointer;width:100%}
+.settings-form{display:grid;gap:10px;padding:20px}
+.settings-form label{display:grid;gap:6px;color:var(--text-secondary);font-size:var(--fs-sm)}
+.project-description{padding:20px}
+.project-issue{display:grid;grid-template-columns:100px 1fr auto;gap:12px;border-top:1px solid var(--border);padding:10px 0;color:var(--text-secondary)}
+.project-issue button{border:0;background:none;color:var(--accent);cursor:pointer;text-align:left}
+.admin-row{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--border);padding:11px 0;color:var(--text-secondary)}
+.admin-row:first-of-type{border-top:0}
+.admin-row span:first-child{display:grid;gap:3px}
+.admin-row small{color:var(--text-tertiary)}
+.link-button{border:0;background:none;color:var(--accent);cursor:pointer;font:inherit;padding:0}
+.auth-name-fields{gap:10px}
+.auth-name-fields .field{flex:1}
+.settings-layout{display:flex;gap:28px;align-items:flex-start}
+.settings-tabs{display:grid;gap:4px;width:150px}
+.settings-tabs button{border:0;background:none;color:var(--text-tertiary);padding:8px;text-align:left;border-radius:var(--radius);cursor:pointer}
+.settings-tabs button.active,.settings-tabs button:hover{background:var(--bg-active);color:var(--text-primary)}
+.toggle-row{display:flex!important;grid-template-columns:none!important;align-items:center;gap:10px;padding:10px 0;color:var(--text-secondary)}
+.toggle-row input{accent-color:var(--accent)}
+@media(max-width:700px){.settings-layout{display:block}.settings-tabs{width:auto;display:flex;margin-bottom:16px}}
+.account-card{display:flex;align-items:center;justify-content:space-between;padding:18px;margin-bottom:12px}
+.account-provider{display:flex;align-items:center;gap:12px}.account-provider span:last-child{display:grid;gap:4px}.account-provider small{color:var(--text-tertiary)}.google-avatar{background:#4285f4}
+.member-actions{display:flex;align-items:center;gap:8px}.role-select{width:110px}.invite-row{display:flex;gap:10px;align-items:center}.invite-row .input{flex:1}
+@media(max-width:700px){.invite-row{display:grid}.member-actions{display:grid}}
+.issue-link{display:grid;gap:3px;text-align:left;border:0;background:none;color:var(--text-secondary);cursor:pointer}.issue-link b{color:var(--accent)}
+.detail-editor{display:grid;gap:10px;margin-top:28px;max-width:680px}.detail-editor label{display:grid;gap:6px;color:var(--text-secondary)}
+.breadcrumb-button{border:0;background:none;color:var(--text-tertiary);cursor:pointer;font:inherit;padding:0}.breadcrumb-button:hover{color:var(--text-primary)}

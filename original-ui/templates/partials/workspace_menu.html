@@ -1,0 +1,33 @@
+{% import "partials/icons.html" as icons %}
+
+{# Hangs off the "Workspace" section header rather than off the account, so
+   the control sits next to the name of the thing it changes. #}
+
+<div class="menu" id="workspace-menu" data-menu hidden role="menu"
+     style="min-width:240px">
+  <div class="menu-label">Workspaces</div>
+
+  {% for option in workspaces %}
+  {# POST, because switching changes what every later request resolves to.
+     A GET here would be followed by any link prefetcher. #}
+  <form method="post" action="/workspaces/switch/{{ option.slug }}">
+    <button class="menu-item" type="submit" role="menuitem">
+      <span class="avatar" style="background:{{ '#5e6ad2' if workspace and option.id == workspace.id else '#8a8f98' }}">
+        {{ workspace_initials(option) }}</span>
+      <span class="label">{{ option.name }}</span>
+      {% if workspace and option.id == workspace.id %}<span class="muted">✓</span>{% endif %}
+    </button>
+  </form>
+  {% endfor %}
+
+  <div class="menu-separator"></div>
+
+  {% if ctx.is_admin %}
+  <a class="menu-item" href="/settings/workspace" role="menuitem">
+    {{ icons.settings() }}<span class="label">Workspace settings</span>
+  </a>
+  {% endif %}
+  <a class="menu-item" href="/workspaces/new" role="menuitem">
+    {{ icons.plus() }}<span class="label">Create workspace</span>
+  </a>
+</div>

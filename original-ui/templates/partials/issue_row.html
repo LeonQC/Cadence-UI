@@ -1,0 +1,16 @@
+{% import "partials/icons.html" as icons %}
+{% import "partials/status_menu.html" as menus %}
+
+{# One row of the issue list. The identifier is the link target as well as the
+   label, so what you read is what you can paste into a commit message. #}
+
+{% macro row(issue, team, assignees) %}
+{% set identifier = team.key ~ '-' ~ issue.number %}
+<li class="issue-row is-{{ issue.status }}">
+  {{ menus.status_menu(issue, identifier, 'status-' ~ issue.id) }}
+  <span class="identifier">{{ identifier }}</span>
+  <a class="title" href="/issue/{{ identifier }}">{{ issue.title }}</a>
+  {{ icons.priority(issue.priority) }}
+  {{ icons.avatar(assignees.get(issue.assignee_id)) }}
+</li>
+{% endmacro %}

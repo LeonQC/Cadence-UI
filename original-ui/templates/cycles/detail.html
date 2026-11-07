@@ -1,0 +1,73 @@
+{% extends "app.html" %}
+{% import "partials/icons.html" as icons %}
+{% import "partials/issue_row.html" as rows %}
+
+{# One cycle's work, grouped by status. Used for both Current and Upcoming --
+   they differ only in which cycle the route picked. #}
+
+{% block title %}
+{{ cycle.name if cycle else state|capitalize }} · {{ active_team.name }} · TodoApp
+{% endblock %}
+
+{% block header %}
+<nav class="breadcrumb">
+  <a href="/team/{{ active_team.key }}/cycles">Cycles</a>
+  {{ icons.chevron_right(11) }}
+  <span class="current" style="font-family:var(--font)">
+    {{ cycle.name if cycle else state|capitalize }}</span>
+</nav>
+<span class="spacer"></span>
+{% if cycle %}
+<span class="cycle-state {{ state }}">{{ CYCLE_STATE_LABELS[state] }}</span>
+<span class="muted" style="margin-left:8px">
+  {{ cycle.starts_on.strftime('%b %d') }} – {{ cycle.ends_on.strftime('%b %d') }}
+</span>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if not cycle %}
+<div class="empty-state">
+  <span class="title">No {{ state }} cycle</span>
+  <span>{{ active_team.name }} has no cycle in that state right now.</span>
+  <a class="btn btn-secondary" href="/team/{{ active_team.key }}/cycles"
+     style="margin-top:8px">All cycles</a>
+</div>
+{% elif total == 0 %}
+<div class="empty-state">
+  <span class="title">{{ cycle.name }} is empty</span>
+  <span>Open an issue in {{ active_team.name }} and pick this cycle on it.</span>
+  <a class="btn btn-primary" href="/team/{{ active_team.key }}/issues"
+     style="margin-top:8px">Team issues</a>
+</div>
+{% else %}
+<div class="cycle-open" style="border-bottom:1px solid var(--border)">
+  <div class="row between">
+    <p class="hint">
+      {{ done }} of {{ total }} done · {{ (done * 100 // total) }}%
+    </p>
+    <span class="progress-mini" style="width:160px" role="img"
+          aria-label="{{ done }} of {{ total }} issues done">
+      <span style="width:{{ done * 100 // total }}%"></span>
+    </span>
+  </div>
+</div>
+
+{% for value, items in groups %}
+<section class="issue-group">
+  <div class="issue-group-header">
+    <button class="group-toggle" type="button" data-collapse="group-{{ value }}"
+            aria-expanded="true">
+      <span class="chev">{{ icons.chevron_down(11) }}</span>
+      {{ icons.status(value) }}
+      <span>{{ STATUS_LABELS[value] }}</span>
+      <span class="count">{{ items|length }}</span>
+    </button>
+  </div>
+  <ul id="group-{{ value }}">
+    {% for issue in items %}{{ rows.row(issue, active_team, assignees) }}{% endfor %}
+  </ul>
+</section>
+{% endfor %}
+{% endif %}
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "app.html" %}
+{% import "partials/icons.html" as icons %}
+
+{% set identifier = active_team.key ~ '-' ~ issue.number %}
+
+{% block title %}Edit {{ identifier }} · TodoApp{% endblock %}
+
+{% block header %}
+<nav class="breadcrumb">
+  <a href="/team/{{ active_team.key }}/issues">{{ active_team.name }}</a>
+  {{ icons.chevron_right(11) }}
+  <a class="current" href="/issue/{{ identifier }}">{{ identifier }}</a>
+  {{ icons.chevron_right(11) }}
+  <span>Edit</span>
+</nav>
+<span class="spacer"></span>
+{% endblock %}
+
+{% block content %}
+<div class="content-narrow">
+  <form method="post" action="/issue/{{ identifier }}/edit">
+    <div class="field">
+      <label for="title">Title</label>
+      <input class="input" id="title" name="title" value="{{ issue.title }}"
+             required autofocus>
+    </div>
+
+    <div class="field">
+      <label for="description">Description</label>
+      <textarea class="textarea" id="description" name="description"
+        >{{ issue.description or '' }}</textarea>
+    </div>
+
+    <div class="field" style="max-width:160px">
+      <label for="priority">Priority</label>
+      <select class="select" id="priority" name="priority">
+        {% for level in range(1, 6) %}
+        <option value="{{ level }}" {{ 'selected' if issue.priority == level }}>
+          P{{ level }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <p class="hint">
+      Status is changed from the issue itself, so a change lands in one click
+      rather than behind a form.
+    </p>
+
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">Save</button>
+      <a class="btn btn-ghost" href="/issue/{{ identifier }}">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

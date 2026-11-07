@@ -1,0 +1,134 @@
+{% extends "app.html" %}
+{% import "partials/icons.html" as icons %}
+
+{# Newest first, with the running cycle opened out into a burn-up -- the way
+   the reference stacks them: what is coming sits above what has been. #}
+
+{% block title %}Cycles · {{ active_team.name }} · TodoApp{% endblock %}
+
+{% block heading %}
+{{ icons.cycles(15) }}
+<span>Cycles</span>
+<span class="muted">{{ active_team.cycle_length_days }}-day</span>
+{% endblock %}
+
+{% block content %}
+<ul>
+  {% for cycle in cycles %}
+  {% set state = states[cycle.id] %}
+  <li>
+    <div class="cycle-row is-{{ state }}">
+      <span class="icon">{{ icons.cycles(14) }}</span>
+      {% if state in ('current', 'upcoming') %}
+      <a class="title" href="/team/{{ active_team.key }}/cycles/{{ state }}"
+        >{{ cycle.name }}</a>
+      {% else %}
+      <span class="title">{{ cycle.name }}</span>
+      {% endif %}
+
+      <span class="muted cycle-dates">
+        {{ cycle.starts_on.strftime('%b %d') }} –
+        {{ cycle.ends_on.strftime('%b %d') }}
+      </span>
+
+      <span class="cycle-state {{ state }}">{{ CYCLE_STATE_LABELS[state] }}</span>
+
+      <span class="progress-mini" role="img"
+            aria-label="{{ done[cycle.id] }} of {{ scope[cycle.id] }} issues done">
+        <span style="width:{{ (done[cycle.id] * 100 // scope[cycle.id])
+                              if scope[cycle.id] else 0 }}%"></span>
+      </span>
+      <span class="muted progress-count">
+        {%- if scope[cycle.id] -%}{{ done[cycle.id] }}/{{ scope[cycle.id] }}
+        {%- else -%}0 scope{%- endif -%}
+      </span>
+    </div>
+
+    {% if current and cycle.id == current.id and chart %}
+    <figure class="cycle-open">
+      <figcaption class="row between">
+        <div>
+          <h2>Burn-up</h2>
+          <p class="hint">
+            Day {{ chart.days_shown }} of {{ chart.days_total }}. Scope counts
+            issues from the day they were created — nothing records when one
+            was moved into a cycle, so an issue added late reads as having been
+            here from the start.
+          </p>
+        </div>
+        <div class="legend">
+          {% for series in chart.series %}
+          <span class="legend-item">
+            <span class="key key-{{ series.role }}"></span>
+            {{ series.name }} <b>{{ series.end_value }}</b>
+          </span>
+          {% endfor %}
+        </div>
+      </figcaption>
+
+      <svg class="trend" viewBox="0 0 {{ chart.box.width }} {{ chart.box.height }}"
+           role="img" preserveAspectRatio="xMidYMid meet"
+           aria-label="Burn-up for {{ cycle.name }}:
+                       scope {{ chart.series[0].end_value }},
+                       started {{ chart.series[1].end_value }},
+                       completed {{ chart.series[2].end_value }}.">
+        {% if chart.elapsed %}
+        {# The rest of the cycle, shaded. The lines stop at today rather than
+           running flat to the end, which would read as "no progress" instead
+           of "not yet". #}
+        <rect class="remaining" x="{{ chart.elapsed.x }}" y="{{ chart.elapsed.top }}"
+              width="{{ chart.box.right - chart.elapsed.x }}"
+              height="{{ chart.elapsed.bottom - chart.elapsed.top }}"/>
+        <line class="today-rule" x1="{{ chart.elapsed.x }}"
+              y1="{{ chart.elapsed.top }}" x2="{{ chart.elapsed.x }}"
+              y2="{{ chart.elapsed.bottom }}" vector-effect="non-scaling-stroke"/>
+        {% endif %}
+
+        {% for line in chart.gridlines %}
+        <line class="grid" x1="{{ chart.box.left }}" y1="{{ line.y }}"
+              x2="{{ chart.box.right }}" y2="{{ line.y }}"
+              vector-effect="non-scaling-stroke"/>
+        <text class="tick" x="{{ chart.box.left - 10 }}" y="{{ line.y + 4 }}"
+              text-anchor="end">{{ line.value }}</text>
+        {% endfor %}
+
+        {% for series in chart.series %}
+        <polyline class="trend-line line-{{ series.role }}"
+                  points="{{ series.points }}"
+                  vector-effect="non-scaling-stroke"/>
+        {% endfor %}
+
+        {% for series in chart.series %}
+        <circle class="trend-dot dot-{{ series.role }}"
+                cx="{{ series.end[0] }}" cy="{{ series.end[1] }}" r="4"/>
+        {% endfor %}
+
+        {% for day in chart.dates %}
+        <text class="tick" x="{{ day.x }}" y="{{ chart.box.height - 6 }}"
+              text-anchor="middle">{{ day.text }}</text>
+        {% endfor %}
+      </svg>
+
+      <details class="table-view">
+        <summary>Show data</summary>
+        <table class="data-table">
+          <thead><tr><th>Series</th><th>At {{ today.strftime('%b %d') }}</th></tr></thead>
+          <tbody>
+            {% for series in chart.series %}
+            <tr><td>{{ series.name }}</td><td>{{ series.end_value }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </details>
+    </figure>
+    {% elif current and cycle.id == current.id %}
+    <div class="cycle-open">
+      <p class="hint">Nothing scheduled into {{ cycle.name }} yet.
+        <a href="/team/{{ active_team.key }}/cycles/current">Open it</a> to see
+        what is in scope.</p>
+    </div>
+    {% endif %}
+  </li>
+  {% endfor %}
+</ul>
+{% endblock %}

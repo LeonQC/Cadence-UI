@@ -1,0 +1,108 @@
+{% import "partials/icons.html" as icons %}
+
+{# Three sections, matching the reference: who you are, the workspace, and
+   your teams. Entries nothing backs yet render greyed with "soon" rather than
+   as links that 404 -- the same rule the settings navigation follows.
+
+   active_view is set by each route ("home", "issues", "my-issues", …) so the
+   sidebar can mark where you are without parsing the URL in a template. #}
+
+{% set compose_team = active_team or (teams[0] if teams else None) %}
+
+<nav class="sidebar" aria-label="Navigation">
+
+  <div class="sidebar-top">
+    <div class="menu-anchor" style="flex:1; min-width:0">
+      <button class="account-switch" type="button" data-menu-open="account-menu">
+        <span class="avatar" style="background:{{ avatar_color(user) }}">
+          {{ initials(user) }}</span>
+        <span class="name">{{ user.username }}</span>
+        <span class="chevron">{{ icons.chevron_down(11) }}</span>
+      </button>
+      {% include "partials/account_menu.html" %}
+    </div>
+    <span class="btn-icon pending" title="Search — not built">
+      {{ icons.search(14) }}</span>
+    {% if compose_team %}
+    <a class="btn-icon" href="/team/{{ compose_team.key }}/new" title="New issue">
+      {{ icons.compose(14) }}</a>
+    {% endif %}
+  </div>
+
+  <div class="nav-group">
+    <span class="nav-item pending">{{ icons.inbox() }}
+      <span class="label">Inbox</span><span class="badge-soon">soon</span></span>
+    <a class="nav-item {{ 'active' if active_view == 'my-issues' }}"
+       href="/my-issues">{{ icons.my_issues() }}
+      <span class="label">My issues</span></a>
+    <span class="nav-item pending">{{ icons.reviews() }}
+      <span class="label">Reviews</span><span class="badge-soon">soon</span></span>
+    <span class="nav-item pending">{{ icons.agent() }}
+      <span class="label">Agent</span><span class="badge-soon">soon</span></span>
+  </div>
+
+  <div class="menu-anchor">
+    <button class="sidebar-section as-button" type="button"
+            data-menu-open="workspace-menu">
+      <span>Workspace</span>{{ icons.chevron_down(10) }}
+    </button>
+    {% include "partials/workspace_menu.html" %}
+  </div>
+
+  {% if ctx.is_admin %}
+  <a class="nav-item {{ 'active' if active_view == 'members' }}"
+     href="/settings/members">{{ icons.members() }}
+    <span class="label">Members</span></a>
+  <a class="nav-item {{ 'active' if active_view == 'teams' }}"
+     href="/settings/teams">{{ icons.teams() }}
+    <span class="label">Teams</span></a>
+  {% else %}
+  {# Members and Teams are administration. A member sees the section exists
+     but the pages themselves are refused server-side either way. #}
+  <span class="nav-item pending">{{ icons.members() }}
+    <span class="label">Members</span></span>
+  <span class="nav-item pending">{{ icons.teams() }}
+    <span class="label">Teams</span></span>
+  {% endif %}
+
+  <div class="sidebar-section">Your teams</div>
+
+  {% for team in teams %}
+  {% set here = active_team and team.id == active_team.id %}
+  <div class="team-group">
+    <div class="nav-item team-head">
+      {{ icons.team_badge(team) }}<span class="label">{{ team.name }}</span>
+      <span class="count">{{ team.key }}</span>
+    </div>
+
+    <a class="nav-item nested {{ 'active' if here and active_view == 'home' }}"
+       href="/team/{{ team.key }}/home">{{ icons.home() }}
+      <span class="label">Home</span></a>
+
+    <a class="nav-item nested {{ 'active' if here and active_view == 'issues' }}"
+       href="/team/{{ team.key }}/issues">{{ icons.issues_icon() }}
+      <span class="label">Issues</span></a>
+
+    <a class="nav-item nested {{ 'active' if here and active_view == 'cycles' }}"
+       href="/team/{{ team.key }}/cycles">{{ icons.cycles() }}
+      <span class="label">Cycles</span></a>
+    <a class="nav-item nested twice {{ 'active' if here and active_view == 'cycles-current' }}"
+       href="/team/{{ team.key }}/cycles/current"><span class="label">Current</span></a>
+    <a class="nav-item nested twice {{ 'active' if here and active_view == 'cycles-upcoming' }}"
+       href="/team/{{ team.key }}/cycles/upcoming"><span class="label">Upcoming</span></a>
+
+    <a class="nav-item nested {{ 'active' if here and active_view == 'projects' }}"
+       href="/team/{{ team.key }}/projects">{{ icons.projects() }}
+      <span class="label">Projects</span></a>
+  </div>
+  {% else %}
+  <span class="nav-item pending"><span class="label">No teams yet</span></span>
+  {% endfor %}
+
+  <span style="flex:1"></span>
+
+  <a class="nav-item {{ 'active' if active_view == 'settings' }}"
+     href="/settings/profile" title="Settings — G then S">
+    {{ icons.settings() }}<span class="label">Settings</span>
+  </a>
+</nav>

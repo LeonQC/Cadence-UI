@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{# The shell every signed-in page sits in: sidebar on the page background,
+   content in an inset panel of its own. Expects the keys deps.shell() puts in
+   the context (user, workspace, workspaces, teams, ctx). #}
+
+{% block body %}
+<div class="app">
+  {% include "partials/sidebar.html" %}
+
+  <main class="app-main">
+    <header class="app-header">
+      {% block header %}
+      <span class="page-title">{% block heading %}{% endblock %}</span>
+      <span class="spacer"></span>
+      {% block header_actions %}{% endblock %}
+      {% endblock %}
+    </header>
+
+    <div class="app-body {% block body_class %}{% endblock %}">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+</div>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends "app.html" %}
+{% import "partials/icons.html" as icons %}
+
+{% set editing = project is not none %}
+
+{% block title %}
+{{ 'Edit ' ~ project.name if editing else 'New project' }} · TodoApp
+{% endblock %}
+
+{% block header %}
+<nav class="breadcrumb">
+  <a href="/team/{{ active_team.key }}/projects">Projects</a>
+  {{ icons.chevron_right(11) }}
+  {% if editing %}
+  <a class="current" href="/project/{{ project.id }}">{{ project.name }}</a>
+  {{ icons.chevron_right(11) }}<span>Edit</span>
+  {% else %}
+  <span>New</span>
+  {% endif %}
+</nav>
+<span class="spacer"></span>
+{% endblock %}
+
+{% block content %}
+<div class="content-narrow">
+  <form method="post" action="{{ '/project/' ~ project.id ~ '/edit'
+                                if editing
+                                else '/team/' ~ active_team.key ~ '/projects/new' }}">
+    <div class="field">
+      <label for="name">Name</label>
+      <input class="input" id="name" name="name" required autofocus
+             placeholder="Login rework"
+             value="{{ project.name if editing else '' }}">
+      <p class="hint" style="margin-top:6px">
+        A feature: one deliverable, made of several issues.
+      </p>
+    </div>
+
+    <div class="field">
+      <label for="description">Description</label>
+      <textarea class="textarea" id="description" name="description"
+                placeholder="What this feature delivers, and why"
+        >{{ project.description or '' if editing else '' }}</textarea>
+    </div>
+
+    <div class="row" style="gap:12px; align-items:flex-end">
+      <div class="field" style="flex:1; margin-bottom:0">
+        <label for="project_status">Status</label>
+        <select class="select" id="project_status" name="project_status">
+          {% for value in PROJECT_STATUSES %}
+          <option value="{{ value }}"
+            {{ 'selected' if (project.status if editing else 'planned') == value }}
+            >{{ PROJECT_STATUS_LABELS[value] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="field" style="flex:1; margin-bottom:0">
+        <label for="lead_id">Lead</label>
+        <select class="select" id="lead_id" name="lead_id">
+          <option value="">Unassigned</option>
+          {% for person in people %}
+          <option value="{{ person.id }}"
+            {{ 'selected' if editing and project.lead_id == person.id }}
+            >{{ person.display_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="field" style="flex:1; margin-bottom:0">
+        <label for="target_date">Target date</label>
+        <input class="input" id="target_date" name="target_date" type="date"
+               value="{{ project.target_date.isoformat()
+                         if editing and project.target_date else '' }}">
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">
+        {{ 'Save' if editing else 'Create project' }}
+      </button>
+      <a class="btn btn-ghost"
+         href="{{ '/project/' ~ project.id if editing
+                  else '/team/' ~ active_team.key ~ '/projects' }}">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "settings.html" %}
+
+{% block page_title %}Security &amp; access{% endblock %}
+{% block page_subtitle %}Your password and the sessions signed in as you.{% endblock %}
+
+{% block content %}
+<div class="settings-block">
+  <h2>{{ 'Change password' if has_password else 'Set a password' }}</h2>
+  {% if not has_password %}
+  <p class="hint" style="margin-top:4px">
+    You signed up with Google, so this account has no password yet. Setting one
+    gives you a second way in — and is what lets you disconnect Google later.
+  </p>
+  {% endif %}
+
+  <form method="post" action="/settings/security/password" style="margin-top:16px">
+    {% if has_password %}
+    <div class="field">
+      <label for="current_password">Current password</label>
+      <input class="input" id="current_password" name="current_password"
+             type="password" autocomplete="current-password" required>
+    </div>
+    {% endif %}
+    <div class="field">
+      <label for="new_password">New password</label>
+      <input class="input" id="new_password" name="new_password"
+             type="password" autocomplete="new-password" required minlength="8">
+      <p class="hint" style="margin-top:6px">At least 8 characters.</p>
+    </div>
+    <div class="field" style="margin-bottom:0">
+      <label for="confirm_password">Confirm new password</label>
+      <input class="input" id="confirm_password" name="confirm_password"
+             type="password" autocomplete="new-password" required>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">
+        {{ 'Change password' if has_password else 'Set password' }}
+      </button>
+    </div>
+  </form>
+</div>
+
+<div class="settings-block">
+  <h2>Sessions</h2>
+  <p class="hint" style="margin-top:4px">
+    Signs out every other browser and device where you are logged in, and
+    leaves this one alone. Access tokens carry the version this revokes, so it
+    reaches sessions on machines this server has never heard from — something
+    signing out on each device one at a time cannot do.
+  </p>
+  <form method="post" action="/settings/security/sessions" style="margin-top:16px"
+        data-confirm="Sign out of every other session?">
+    <button class="btn btn-secondary" type="submit">
+      Log out of all other sessions
+    </button>
+  </form>
+</div>
+
+<div class="settings-block">
+  <h2>Signed in with</h2>
+  <div class="row between" style="margin-top:12px">
+    <span class="hint">
+      This session authenticated with
+      <strong>{{ {'password': 'a password', 'google': 'Google',
+                  'api_key': 'an API key'}.get(ctx.auth_method, ctx.auth_method) }}</strong>.
+    </span>
+    <a class="btn btn-ghost" href="/settings/accounts">Connected accounts</a>
+  </div>
+</div>
+{% endblock %}
